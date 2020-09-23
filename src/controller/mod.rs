@@ -2,11 +2,12 @@ use std::sync::mpsc::{Sender, Receiver, channel};
 use super::gui_tk::GuiAction;
 
 use std::thread;
+use std::thread::JoinHandle;
 use std::collections::HashMap;
 use std::time::{Duration};
 
-pub fn run_controller(mut root_controller: RootController) {
-    let controller_thread = thread::spawn(move || {
+pub fn run_controller(mut root_controller: RootController) -> JoinHandle<()>{
+    thread::spawn(move || {
         loop {                
             let gui_action: GuiAction = match root_controller.action_receiver.try_recv() {
                 Ok(action) => action,
@@ -14,14 +15,9 @@ pub fn run_controller(mut root_controller: RootController) {
             };
             root_controller.handle_action(&gui_action);
             thread::sleep(Duration::from_millis(5));
-        };
-    });
+        }
+    })
 
-    // ... main thread waits here, I think.
-    match controller_thread.join() {
-        Ok(_) => (),
-        Err(_) => ()
-    }
 }
 
 

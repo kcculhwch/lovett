@@ -4,16 +4,18 @@ use rppal::gpio::{ Gpio, Level, InputPin};
 
 use std::sync::mpsc::Sender;
 use std::thread;
-use std::time::{Duration};
 
-pub fn run_pad(mut pad: Pad) {
+use std::time::{Duration};
+use std::thread::JoinHandle;
+
+pub fn run_pad(mut pad: Pad) -> JoinHandle<()>{
     thread::spawn(move || {
         loop {
             let button_actions = pad.detect_changes();
             pad.button_sender.send(button_actions).unwrap();
             thread::sleep(Duration::from_millis(20));
         }
-    });
+    })
 }
 
 pub struct ButtonInitializer {

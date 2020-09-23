@@ -1,120 +1,53 @@
 use std::sync::mpsc::{Sender, Receiver, channel};
 use std::thread;
+use std::thread::JoinHandle;
 use std::collections::HashMap;
-use std::time::{Instant,  Duration};
+use std::time::{Duration};
 
 //use chrono::format::strftime;
 use chrono::DateTime;
 use chrono::Local;
 
-use super::gui_tk::GuiState;
 
-pub fn run_state(mut root_state:  RootState) {
+pub fn run_state(mut root_state:  RootState) -> JoinHandle<()>{
         thread::spawn(move || {
             loop {
 
                 // lisen for mutators
-                let mutator: Mutator = match root_state.mutation_receiver.try_recv() {
-                    Ok(mutator) => mutator,
-                    Err(_) => Mutator::new("", "".to_string(), 0)
+                match root_state.mutation_receiver.try_recv() {
+                    Ok(mutator) => {
+                        if root_state.mutate(mutator) {
+                            // send state clone
+                            for sender in &root_state.state_senders {
+                                sender.send(root_state.state.clone()).unwrap();
+                            }
+                        }
+                    },
+                    Err(_) => ()
 
                 };
-                // process mutation
-                if mutator.name != "".to_string() {
-
-                        root_state.mutate(mutator);
-                        println!("Got Mutator");
-                        // send state clone
-                        for sender in &root_state.state_senders {
-                            sender.send(root_state.state.clone()).unwrap();
-                        }
-                }
                 thread::sleep(Duration::from_millis(5));
             }
-        });
-
+        })
 }
 
-
+pub type StateMutator = fn(&[u8], Mutator) -> Vec<u8>;
 
 pub struct RootState {
-    pub state: State,
-    pub state_senders: Vec<Sender<State>>,
+    pub state: Vec<u8>,
+    pub state_senders: Vec<Sender<Vec<u8>>>,
     pub mutation_receiver: Receiver<Mutator>,
-    mutation_sender: Sender<Mutator>   
-}
-
-#[derive(Clone, Debug)]
-pub struct State {
-    pub boiler: BoilerState,
-    pub tank: TankState,
-    pub time: TimeState,
-    pub settings: SettingsState,
-    pub views: HashMap<&'static str, Vec<GuiState>>
-}
-
-#[derive(Clone, Debug)]
-pub struct BoilerState {
-    pub element_on: bool,
-    pub temperature: i32
-}
-
-#[derive(Clone, Debug)]
-pub struct TankState {
-    pub level: i32
-}
-
-#[derive(Clone, Debug)]
-pub struct TimeState {
-    pub turned_on:  Instant,
-    pub current_time: String
-}
-
-#[derive(Clone, Debug)]
-pub struct SettingsState {
-    pub running: bool,
-    pub p: u32,
-    pub i: u32,
-    pub d: u32 
-}
-#[derive(Clone, Debug)]
-pub struct ViewsState {
-    pub bar: Vec<GuiState>,
-    pub boiler: Vec<GuiState>,
-    pub steamer: Vec<GuiState>,
-    pub settings: Vec<GuiState>
+    mutation_sender: Sender<Mutator>,   
+    pub mutators: HashMap<&'static str, StateMutator>
 }
 
 impl RootState {
-    pub fn new() -> RootState {
+    pub fn new(state: Vec<u8>) -> RootState {
         let (sender, receiver) = channel();
-        let mut views: HashMap<&str, Vec<GuiState>> = HashMap::new();
-        views.insert("bar", vec![]);
-        views.insert("boiler", vec![]);
-        views.insert("steamer", vec![]);
-        views.insert("settings", vec![]);
-
+        let mutators: HashMap<&'static str, StateMutator > = HashMap::new();
         RootState {
-            state: State {
-                boiler: BoilerState {
-                    element_on: false,
-                    temperature: 0
-                },
-                tank: TankState {
-                    level: 0                    
-                },
-                time: TimeState {
-                    turned_on: Instant::now(),
-                    current_time: "00:00:00 XX".to_string() 
-                },
-                settings: SettingsState {
-                    running: false,
-                    p: 0,
-                    i: 0,
-                    d: 0
-                },
-                views,
-            },
+            mutators,
+            state,
             state_senders: vec![],
             mutation_receiver: receiver,
             mutation_sender: sender       
@@ -122,7 +55,7 @@ impl RootState {
         }
     }
 
-    pub fn reg_state_sender(&mut self, sender: Sender<State>) { 
+    pub fn reg_state_sender(&mut self, sender: Sender<Vec<u8>>) { 
         self.state_senders.push(sender);
     }
 
@@ -132,33 +65,24 @@ impl RootState {
     }
 
 
-    pub fn mutate(&mut self, mutator: Mutator) {
-        match mutator.name {
-            "[time.current_time]" => {
-                self.state.time.current_time = mutator.value;
+    pub fn mutate(&mut self, mutator: Mutator) -> bool{
+        //
+        let mutated = match self.mutators.get(mutator.name) {
+            Some(mutator_fn) =>  {
+                let state_updater_fn: StateMutator = *mutator_fn;
+                self.state = state_updater_fn(&self.state[..], mutator);
+                true
             },
-            "[Move Selection To]" => {
-                let current = self.state.views.get(mutator.value.as_str()).unwrap().iter().position(|x| match x { 
-                    GuiState::Selected => true,
-                    _ => false
-                    });
-                match current {
-                    Some(position) => self.state.views.get_mut(mutator.value.as_str()).unwrap()[position] = GuiState::Base,
-                    _ => ()
-                };
-                self.state.views.get_mut(mutator.value.as_str()).unwrap()[mutator.number as usize] = GuiState::Selected;
-            },
-            "[Clicked Button]" => {
-                self.state.views.get_mut(mutator.value.as_str()).unwrap()[mutator.number as usize] = GuiState::Clicked;
-            },
-            "[Released Button]" => {
-                self.state.views.get_mut(mutator.value.as_str()).unwrap()[mutator.number as usize] = GuiState::Selected;
+            None => {
+                false
             }
-            _ => ()
-        }        
+            
+        };
+        mutated
     }
 }
 
+#[allow(dead_code)]
 pub struct Mutator {
     name: &'static str,
     value: String,

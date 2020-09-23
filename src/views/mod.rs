@@ -1,11 +1,13 @@
 use super::canvas::Canvas;
-use super::gui_tk::{Gui, Button, GuiAction};
-use super::state::{State, RootState, Mutator};
+use super::gui_tk::{Gui,  GuiAction};
+use super::state::{Mutator};
 use std::sync::mpsc::{Sender, Receiver};
 use super::joy_pad::{ButtonAction, Action};
 
 
 use std::thread;
+use std::thread::JoinHandle;
+
 use std::time::{Duration};
 /*
      ButtonInitializer {pin: 5, code: 0, key: "b"},
@@ -23,7 +25,7 @@ enum InputMode {
     Manipulate
 }
 
-pub fn run_view(mut root_view: RootView){
+pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
     root_view.initialize();
     thread::spawn(move || {
         loop {
@@ -43,34 +45,34 @@ pub fn run_view(mut root_view: RootView){
 
             match root_view.state_receiver.try_recv() {
                 Ok(state) => {
-                    root_view.update_bar(&state);
-                    root_view.update_active_view(&state);
+                    root_view.update_bar(&state[..]);
+                    root_view.update_active_view(&state[..]);
                     root_view.render();
                     println!("State Update");
                 },
                 Err(_) => ()
             };
             thread::sleep(Duration::from_millis(5));
-        };
-    });
+        }
+    })
 }
 
 
 pub struct RootView {
-    bar: InfoBar,
+    bar: View,
     views: Vec<Box<View>>,
     active: usize,
     canvas: Canvas,
-    state_receiver: Receiver<State>,
+    state_receiver: Receiver<Vec<u8>>,
     input_receiver: Receiver<Vec<ButtonAction>>,
     action_sender: Sender<GuiAction>
 }
 
 impl RootView {
-    pub fn new(fbdev: &'static str, state_receiver: Receiver<State>, root_state: &mut RootState, input_receiver: Receiver<Vec<ButtonAction>>, action_sender: Sender<GuiAction>) -> RootView {
+    pub fn new(fbdev: &'static str, state_receiver: Receiver<Vec<u8>>,  input_receiver: Receiver<Vec<ButtonAction>>, action_sender: Sender<GuiAction>, info_bar_view: View) -> RootView {
         let canvas: Canvas = Canvas::new(fbdev);
         let mut root_view = RootView {
-            bar: InfoBar::new(root_state),
+            bar: info_bar_view,
             views: vec![],
             canvas: canvas,
             active: 0,
@@ -110,7 +112,7 @@ impl RootView {
     }
 
     // update the top bar
-    pub fn update_bar(&mut self, state: &State) -> bool {
+    pub fn update_bar(&mut self, state: &[u8]) -> bool {
         self.bar.update(state, &mut self.canvas)
     }
 
@@ -127,7 +129,7 @@ impl RootView {
         }
     }
 
-    pub fn update_active_view(&mut self, state: &State){
+    pub fn update_active_view(&mut self, state: &[u8]){
         if self.views.len() > self.active {
             self.views[self.active].update(state, &mut self.canvas);
         } else {
@@ -156,42 +158,6 @@ impl RootView {
 //abstract trait to impl the view Trait while keeping it dry
 
 
-struct InfoBar {
-    objects: Vec<Box<dyn Gui + Send>>  
-}
-
-impl InfoBar {
-    pub fn new(root_state: &mut RootState) -> InfoBar {
-        let mut objects: Vec<Box<dyn Gui + Send>> = vec![];
-        let button: Box<Button> = Box::new(Button::new("00:00:00 XX".to_string(), 0, 0, 140, 28, GuiAction::new("Time Click", None)));
-        root_state.state.views.get_mut("bar").unwrap().push(button.gui_state.clone());
-        objects.push(button);
-
-        InfoBar {
-            objects: objects
-        }
-    }
-    // since infobar is always in view initialize and activate functions are combined
-    // there is no deactivate
-    pub fn activate(&mut self,  canvas: &mut Canvas) -> bool {
-         for i in (0 as usize)..(self.objects.len() as usize) {
-            if !(self.objects[i].initialize(canvas) && self.objects[i].activate(canvas)) {
-                println!("Could not get bar objects initialized and activated!");
-                return false;
-            }
-        }
-        true
-    }
-    pub fn update(&mut self, state: &State, canvas: &mut Canvas) -> bool{
-        //update each object in the view with the correct state data
-        self.objects[0].set_text(state.time.current_time.clone(), canvas);
-        self.objects[0].set_gui_state(state.views.get("bar").unwrap()[0].clone(), canvas);
-        true
-    }
-
-    
-}
-
 
 pub struct View {
     objects: Vec<Box<dyn Gui + Send>>,
@@ -205,7 +171,7 @@ pub struct View {
     update_fn: ViewStateUpdater
 }
   
-pub type ViewStateUpdater = fn(&mut  Vec<Box<dyn Gui + Send>>, &State, &mut Canvas );
+pub type ViewStateUpdater = fn(&mut  Vec<Box<dyn Gui + Send>>, &[u8], &mut Canvas );
 
 impl View {
     pub fn new(mutation_sender: Sender<Mutator>, name: String, update_fn: ViewStateUpdater ) -> View {
@@ -240,9 +206,8 @@ impl View {
             update_fn
         }
     }
-    pub fn add_object(&mut self, object: Box<dyn Gui + Send>, row: usize, column: usize, root_state: &mut RootState) {
+    pub fn add_object(&mut self, object: Box<dyn Gui + Send>, row: usize, column: usize ) {
         let object_index = self.objects.len(); //
-        root_state.state.views.get_mut(&self.name[..]).unwrap().push(object.get_gui_state());
         self.objects.push(object);
         if self.nav_index.len() > row && self.nav_index[row].len() > column {
             self.nav_index[row][column].push(object_index);
@@ -464,16 +429,13 @@ impl View {
         true
        // all objects 
     }
-    fn update(&mut self, state: &State, canvas: &mut Canvas) -> bool {
+    fn update(&mut self, state: &[u8], canvas: &mut Canvas) -> bool {
         // update each object in the view with the correct state data
         // each view will likely have its own linkage to state data
         // so we let the author of the view provide their own updater_fn
         let update_fn_actor: ViewStateUpdater = self.update_fn;
 
-        update_fn_actor(&mut self.objects, &state, canvas);
-        for i in 0..self.objects.len() {
-            self.objects[i].set_gui_state(state.views.get(&self.name[..]).unwrap()[i].clone(), canvas);
-        }
+        update_fn_actor(&mut self.objects, state, canvas);
         true 
     }
     fn deactivate(&mut self, canvas: &mut Canvas) -> bool {
