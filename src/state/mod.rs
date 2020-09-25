@@ -84,9 +84,9 @@ impl RootState {
 
 #[allow(dead_code)]
 pub struct Mutator {
-    name: &'static str,
-    value: String,
-    number: isize
+    pub name: &'static str,
+    pub value: String,
+    pub number: isize
 }
 impl Mutator {
     pub fn new(name: &'static str, value: String, number: isize) -> Mutator {
