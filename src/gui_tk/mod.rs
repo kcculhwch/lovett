@@ -1,3 +1,8 @@
+extern crate serde;
+extern crate bincode;
+
+use serde::{Serialize, Deserialize};
+
 use uuid::Uuid;
 
 use super::canvas::{Rect, Layer, Draw, Canvas, Text};
@@ -6,7 +11,7 @@ use super::fb::Color;
 use super::joy_pad::ButtonAction;
 use super::joy_pad::Action as JAction;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum GuiState{
     Base,
     Clicked,
