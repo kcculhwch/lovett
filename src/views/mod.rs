@@ -9,7 +9,7 @@ use std::thread;
 use std::thread::JoinHandle;
 
 use std::time::{Duration};
-use log::{info, warn, debug};
+use log::*;
 
 /*
      ButtonInitializer {pin: 5, code: 0, key: "b"},
@@ -52,7 +52,7 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
                     root_view.update_bar(&state[..]);
                     root_view.update_active_view(&state[..]);
                     root_view.render();
-                    println!("State Update");
+                    debug!("Root View Received State Update");
                 },
                 Err(_) => ()
             };

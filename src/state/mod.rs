@@ -8,6 +8,7 @@ use std::time::{Duration};
 use chrono::DateTime;
 use chrono::Local;
 
+use log::*;
 
 pub fn run_state(mut root_state:  RootState) -> JoinHandle<()>{
         thread::spawn(move || {
@@ -115,7 +116,7 @@ pub fn time_keeper(mutation_sender: Sender<Mutator>) {
                     number: 0
                 }
             ).unwrap();
-            println!("Tick");
+            debug!("Clock Tick");
             thread::sleep(Duration::from_millis(1000));        
         };
 
