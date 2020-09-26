@@ -1,6 +1,3 @@
-extern crate serde;
-extern crate bincode;
-
 use serde::{Serialize, Deserialize};
 
 use uuid::Uuid;

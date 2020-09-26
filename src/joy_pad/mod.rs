@@ -46,12 +46,12 @@ impl Button {
         button
     }
 }
-
+#[derive(Debug)]
 pub struct ButtonAction {
     pub action: Action,
     pub code: u8
 }
-
+#[derive(Debug)]
 pub enum Action {
     Pressed,
     Released,

@@ -9,6 +9,8 @@ use std::thread;
 use std::thread::JoinHandle;
 
 use std::time::{Duration};
+use log::{info, warn, debug};
+
 /*
      ButtonInitializer {pin: 5, code: 0, key: "b"},
      ButtonInitializer {pin: 6, code: 1, key: "a"},
@@ -32,6 +34,7 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
             match root_view.input_receiver.try_recv() {
                 Ok(button_actions) => {
                     for ba in &button_actions {
+                        debug!("ButtonAction: {:#?}", ba);
                         match root_view.handle_button_action(ba) {
                             Some(action) => {
                                 root_view.handle_action(action);                
@@ -39,6 +42,7 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
                             None => ()
                         }
                     }
+                    
                 },
                 Err(_) => ()
             }
