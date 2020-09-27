@@ -313,14 +313,15 @@ impl View {
                             }
                         } 
                     }
-                    debug!("     - Row Appears Empty. Let's check the next row in this direction");
-                    // we didn't hit anything recurse
-                    if original_selected_object != self.selected_object && amount > 0 {
-                        self.v_move(amount + 1)
-                    } else if original_selected_object != self.selected_object && amount < 0 {
-                        self.v_move(amount - 1);
+                    if  original_selected_object == self.selected_object {
+                        debug!("     - Row Appears Empty. Let's check the next row in this direction");
+                        // we didn't hit anything recurse
+                        if amount > 0 {
+                            self.v_move(amount + 1)
+                        } else if amount < 0 {
+                            self.v_move(amount - 1);
+                        }
                     }
-
                 }
 
             } else if attempted_row_length > 0 { // there is stuff in here but we had hit a column with nothing in it
@@ -339,11 +340,13 @@ impl View {
 //                } else {
                     // this shouldn't happen
 //            }
-                debug!("     - There was still nothing in this row. Try the next row in this direction");
-                if original_selected_object != self.selected_object && amount > 0 {
-                    self.v_move(amount + 1)
-                } else if original_selected_object != self.selected_object && amount < 0 {
-                    self.v_move(amount - 1);
+                if  original_selected_object == self.selected_object {
+                    debug!("     - There was still nothing in this row. Try the next row in this direction");
+                    if original_selected_object != self.selected_object && amount > 0 {
+                        self.v_move(amount + 1)
+                    } else if original_selected_object != self.selected_object && amount < 0 {
+                        self.v_move(amount - 1);
+                    }
                 }
             } else {// nothing in that row we could use... try another row up or down
                 debug!("     - We hit a row with 0 columns, keep moving to the next row");
