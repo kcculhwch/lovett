@@ -89,6 +89,11 @@ pub trait Gui {
         ()
     }
 
+    #[allow(unused_variables)]
+    fn get_text(&mut self) -> &str {
+        ""
+    }
+   
 
     #[allow(unused_variables)]
     fn set_gui_state(&mut self, gui_state: GuiState, canvas: &mut Canvas){
@@ -253,6 +258,10 @@ impl Gui for Button {
     fn set_text(&mut self, text: String, canvas: &mut Canvas) {
         self.text = text;
         self.reinit(canvas);
+    }
+
+    fn get_text(&mut self) -> &str{
+        &self.text[..]
     }
 
     fn set_gui_state(&mut self, gui_state: GuiState, canvas: &mut Canvas){
