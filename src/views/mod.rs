@@ -194,7 +194,6 @@ impl View {
                                                             vec![], vec![], vec![], vec![],
                                                           ]
                                                     ];
-//        let button: Box<Button> = Box::new(Button::new("00:00:00 XX".to_string(), 0, 28, 200, 32, GuiAction::new("Time Click", None)));
         let selected_row = 0;
         let selected_column = 0;
         let selected_object =  0;   
@@ -210,6 +209,8 @@ impl View {
             update_fn
         }
     }
+
+    // add a navigable object to the view
     pub fn add_object(&mut self, object: Box<dyn Gui + Send>, row: usize, column: usize ) {
         let object_index = self.objects.len(); //
         self.objects.push(object);
@@ -220,6 +221,12 @@ impl View {
         }
         
     }
+
+    // add a static - non navigable object to the view
+    #[allow(dead_code)]
+    pub fn add_static_object(&mut self, object: Box<dyn Gui + Send>) {
+        self.objects.push(object);
+    }
     pub fn escape(&mut self) -> Option<GuiAction>{
         None
     }
@@ -227,13 +234,6 @@ impl View {
 
 
     pub fn nav(&mut self, ba: &ButtonAction) -> Option<GuiAction> {
-        // is there something in the current cell?
-    
-/*        l 2 = -1
-        r 3 = +1
-        up 4 = -1
-        down 5 = +1       
-*/
         match ba.code {
             2 => {
                     match ba.action { 
@@ -328,7 +328,6 @@ impl View {
                 debug!("     - We went to a row with existing columns, but exceeded the column count");
                 // go to last column we can
                 // if selected_column was out of bounds // try the greatest column on down to see if we could get anything
-//                if self.selected_column >= attempted_row_length as usize {
                     for attempted_column in (0..attempted_row_length).rev() {
                         if self.nav_index[attempted_row as usize][attempted_column as usize].len() > 0 {
                             self.selected_row = attempted_row as usize;
@@ -337,9 +336,6 @@ impl View {
                             break;
                         }
                     }
-//                } else {
-                    // this shouldn't happen
-//            }
                 if  original_selected_object == self.selected_object {
                     debug!("     - There was still nothing in this row. Try the next row in this direction");
                     if original_selected_object != self.selected_object && amount > 0 {
