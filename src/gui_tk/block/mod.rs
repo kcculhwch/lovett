@@ -1,5 +1,5 @@
 use super::*;
-
+use log::*;
 //Base Gui Impl
 // box with text + all GuiStates
 pub struct Block {
@@ -82,6 +82,7 @@ impl Block {
 
         self.layers.push(bg);
         self.layers.push(outline);
+        debug!("Copied Layers to canvas for {}", self.name);
     }
 }
 impl Gui for Block {
@@ -98,16 +99,19 @@ impl Gui for Block {
                 canvas.activate_layer_group(self.regular_name.clone());
                 canvas.deactivate_layer_group(self.selected_name.clone());
                 canvas.deactivate_layer_group(self.clicked_name.clone());
+                debug!("Activate Base: {}", self.name);
             },
             GuiState::Clicked => {
                 canvas.deactivate_layer_group(self.regular_name.clone());
                 canvas.deactivate_layer_group(self.selected_name.clone());
                 canvas.activate_layer_group(self.clicked_name.clone());
+                debug!("Activate Clicked: {}", self.name);
             },
             GuiState::Selected => {
                 canvas.deactivate_layer_group(self.regular_name.clone());
                 canvas.activate_layer_group(self.selected_name.clone());
                 canvas.deactivate_layer_group(self.clicked_name.clone());
+                debug!("Activate Selected: {}", self.name);
             }
         };
         true
