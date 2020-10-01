@@ -11,7 +11,7 @@ use super::joy_pad::Action as JAction;
 
 mod button;
 #[allow(unused_imports)]
-use button::*;
+pub use button::*;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum GuiState{
