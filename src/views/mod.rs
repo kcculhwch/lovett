@@ -29,6 +29,7 @@ enum InputMode {
 
 pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
     root_view.initialize();
+    root_view.activate_bar();
     thread::spawn(move || {
         loop {
             match root_view.input_receiver.try_recv() {
@@ -75,7 +76,7 @@ pub struct RootView {
 impl RootView {
     pub fn new(fbdev: &'static str, state_receiver: Receiver<Vec<u8>>,  input_receiver: Receiver<Vec<ButtonAction>>, action_sender: Sender<GuiAction>, info_bar_view: View) -> RootView {
         let canvas: Canvas = Canvas::new(fbdev);
-        let mut root_view = RootView {
+        RootView {
             bar: info_bar_view,
             views: vec![],
             canvas: canvas,
@@ -83,11 +84,10 @@ impl RootView {
             state_receiver,
             input_receiver,
             action_sender
-        };
-        root_view.activate_bar();
-        root_view
+        }
     }
     pub fn initialize(&mut self) {
+        self.bar.initialize(&mut self.canvas);
         for i in 0..self.views.len() {
             self.views[i].initialize(&mut self.canvas);
         }
