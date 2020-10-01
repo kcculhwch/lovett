@@ -13,6 +13,11 @@ mod button;
 #[allow(unused_imports)]
 pub use button::*;
 
+mod block;
+#[allow(unused_imports)]
+pub use block::*;
+
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum GuiState{
     Base,
@@ -129,22 +134,6 @@ pub struct GuiImage {
 #[allow(dead_code)]
 pub struct TextBlock {
     pub text: String,
-    pub action: GuiAction,
-    pub name: String,
-    pub regular_name: String,
-    pub selected_name: String,
-    pub clicked_name: String,
-    // cloned and appended to canvas
-    pub layers: Vec<Layer<Box<dyn Draw + Send>>>,
-    pub x: i32,
-    pub y: i32,
-    pub w: i32,
-    pub h: i32,
-    pub gui_state: GuiState
-}
-
-#[allow(dead_code)]
-pub struct Block {
     pub action: GuiAction,
     pub name: String,
     pub regular_name: String,
