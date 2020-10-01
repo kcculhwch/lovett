@@ -57,7 +57,7 @@ impl Button {
         //gen new layers
         self.gen_layers();
         self.initialize(canvas);
-
+        self.activate(canvas);
 
     }
 
