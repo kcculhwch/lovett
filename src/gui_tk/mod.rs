@@ -17,6 +17,10 @@ mod block;
 #[allow(unused_imports)]
 pub use block::*;
 
+mod text_block;
+#[allow(unused_imports)]
+pub use text_block::*;
+
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum GuiState{
