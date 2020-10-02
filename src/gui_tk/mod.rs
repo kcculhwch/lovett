@@ -135,23 +135,6 @@ pub struct GuiImage {
     pub name: &'static str
 }
 
-#[allow(dead_code)]
-pub struct TextBlock {
-    pub text: String,
-    pub action: GuiAction,
-    pub name: String,
-    pub regular_name: String,
-    pub selected_name: String,
-    pub clicked_name: String,
-    // cloned and appended to canvas
-    pub layers: Vec<Layer<Box<dyn Draw + Send>>>,
-    pub x: i32,
-    pub y: i32,
-    pub w: i32,
-    pub h: i32,
-    pub gui_state: GuiState
-}
-
 
 #[derive(Clone, Debug)]
 pub struct GuiAction {
