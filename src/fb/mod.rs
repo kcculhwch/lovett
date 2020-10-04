@@ -72,8 +72,13 @@ fn x_to_8b(c: u8, factor: u8) -> u8 {
 }
 
 fn add_c(base: u8, addition: u8, alpha: u8) -> u8 {
+    /* integer version */
+    let alpha_p = (alpha as u32 * 10000 ) / 255;
+    let c = (((base as u32 * (10000 - alpha_p)) + (addition as u32 * alpha_p)) / 10000) as u16;
+    /* FPU version
     let alpha_p = alpha as f32 / 255.0;
     let c = ((base as f32 * (1.0 - alpha_p)) + (addition as f32 * alpha_p)) as u16;
+    */
     or_255(c)
 }      
 
