@@ -62,13 +62,25 @@ fn or_255(sp: u16) -> u8 {
     }
 }
 fn u8_to_6b(c: u8) -> u8 {
+    ((630000 * c as u32 / 255) / 10000) as u8
+   
+/* fpu
     (63.0 * c as f32 / 255.0) as u8
+*/
 }
 fn u8_to_5b(c: u8) -> u8 {
+    ((310000 * c as u32 / 255) / 10000) as u8
+/* fpu
     (31.0 * c as f32 / 255.0) as u8
+*/
+
 }
 fn x_to_8b(c: u8, factor: u8) -> u8 {
+/* integer */
+    ((c as u32 * 2550000 / factor as u32) / 10000) as u8
+/* fpu
     (c as f32 * 255.0 / factor as f32) as u8
+*/
 }
 
 fn add_c(base: u8, addition: u8, alpha: u8) -> u8 {
