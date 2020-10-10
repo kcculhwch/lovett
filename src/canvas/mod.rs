@@ -93,12 +93,33 @@ impl Canvas {
             self.layers.remove(*i);
         }
     }
+
+    pub fn get_layer_group(&mut self, group: String) ->  Vec<Layer<Box<dyn Draw + Send>>>  {
+        let mut to_return: Vec<usize> = vec![];
+        let mut result: Vec<Layer<Box<dyn Draw + Send>>> = vec![];
+ 
+        for i in 0..self.layers.len() {
+            if self.layers[i].group == group {
+                to_return.push(i);
+            }
+        }
+
+        for i in to_return.iter().rev() {
+            result.push(self.layers.remove(*i));
+        }
+       
+        result
+    }
 }
 
 pub trait Draw {
     fn draw(&self, fb: &mut FB);
     fn slide(&mut self, x: i32, y: i32);
     fn clipped(&self, fb: &FB) -> Option<(u32, u32, u32, u32)>;
+    #[allow(unused_variables)]    
+    fn update_text(&mut self, text: String){
+        
+    } 
 }
 
 
@@ -283,7 +304,8 @@ pub struct Text {
     color: Color,
     img: DynamicImage, // we store the actual rasterized text here and enough to rerasterize later
     img_x: u32,
-    img_y: u32
+    img_y: u32,
+    padding: u32
 
 }
 
@@ -295,11 +317,20 @@ impl Text {
 
         let font = Font::try_from_vec(font_data).expect("Error constructing Font");
         let scale = Scale::uniform(size);
+        let (image, img_x, img_y, w, h) = Text::layout_string(x, y, &color, &font, &content, scale, padding);
+        Text {
+            x, y, w: w as i32, h: h as i32, content, scale, color, img: image, font, img_x, img_y, padding
+        }
+    }
+    
+   
+    pub fn layout_string(x: i32, y: i32, color: &Color, font: &Font<'static>, content: &String, scale: Scale, padding: u32) -> (DynamicImage, u32, u32, u32, u32 ){
         // Rgba 
         let colour = (color.r, color.g, color.b, color.a);
 
         let v_metrics = font.v_metrics(scale);
-        
+
+       
         // layout the glyphs in a line with 20 pixels padding
         let glyphs: Vec<_> = font
             .layout(&content, scale, point(0.0, 0.0 + v_metrics.ascent))
@@ -352,9 +383,8 @@ impl Text {
         let img_x = adjust_img_loc(x, 0, w);        
 
         let img_y = adjust_img_loc(y, 0, h);
-        Text {
-            x, y, w: w as i32, h: h as i32, content, scale, color, img: image, font, img_x, img_y
-        }
+        // (DynamicImage, u32, u32, u32, u32 )
+        (image, img_x, img_y, w, h)
     }
 }
 
@@ -433,7 +463,18 @@ impl Draw for Text {
     fn clipped(&self, fb: &FB) -> Option<(u32, u32, u32, u32)>{
         clipper(self.x, self.y, self.w, self.h, fb.w, fb.h)
     }
-
+    fn update_text(&mut self, new_content: String) {
+        if new_content != self.content {
+            let (image, img_x, img_y, w, h) = Text::layout_string(self.x, self.y, &self.color, &self.font, &self.content, self.scale, self.padding);
+            self.content = new_content;
+            self.img_x = img_x;
+            self.img_y = img_y;
+            self.w = w as i32;
+            self.h = h as i32;
+            self.img = image; 
+        }
+    }
+ 
 }
 
 pub fn adjust_img_loc(pt: i32, img_pt: u32, max: u32) -> u32 {

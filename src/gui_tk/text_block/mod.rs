@@ -136,7 +136,14 @@ impl Gui for TextBlock {
 
     fn set_text(&mut self, text: String, canvas: &mut Canvas) {
         self.text = text;
-        self.reinit(canvas);
+        // update regular_name
+        let mut layers = canvas.get_layer_group(self.regular_name.clone());
+        for layer in layers.iter_mut() {
+            layer.item.update_text(self.text.clone())
+        }
+        canvas.layers.append(&mut layers);
+
+//        self.reinit(canvas);
     }
 
     fn get_text(&mut self) -> &str{
