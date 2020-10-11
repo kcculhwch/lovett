@@ -153,7 +153,7 @@ impl Gui for Button {
         layers.append( &mut canvas.get_layer_group(self.selected_name.clone()));
         layers.append( &mut canvas.get_layer_group(self.clicked_name.clone()));
 
-        for layer in layers.iter_mut() {
+        for layer in layers.iter_mut().rev() {
             layer.item.update_text(self.text.clone())
         }
         canvas.layers.append(&mut layers);
