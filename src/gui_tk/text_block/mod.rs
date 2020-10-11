@@ -141,7 +141,7 @@ impl Gui for TextBlock {
         layers.append( &mut canvas.get_layer_group(self.selected_name.clone()));
         layers.append( &mut canvas.get_layer_group(self.clicked_name.clone()));
         // reverse here to preserve the order
-        for layer in layers.iter_mut().rev() {
+        for layer in layers.iter_mut() {
             layer.item.update_text(self.text.clone())
         }
         canvas.layers.append(&mut layers);

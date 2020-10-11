@@ -104,7 +104,7 @@ impl Canvas {
             }
         }
 
-        for i in to_return.iter().rev() {
+        for i in to_return.iter() {
             result.push(self.layers.remove(*i));
         }
        
