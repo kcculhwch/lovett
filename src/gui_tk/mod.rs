@@ -30,7 +30,8 @@ pub enum GuiState{
 }
 
 //color pallete
-struct Palette {
+#[derive(Clone)]
+pub struct Palette {
     base: Color,
     base_text: Color,
     base_background: Color,

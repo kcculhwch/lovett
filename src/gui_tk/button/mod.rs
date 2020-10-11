@@ -148,7 +148,17 @@ impl Gui for Button {
 
     fn set_text(&mut self, text: String, canvas: &mut Canvas) {
         self.text = text;
-        self.reinit(canvas);
+        // update regular_name
+        let mut layers = canvas.get_layer_group(self.regular_name.clone());
+        layers.append( &mut canvas.get_layer_group(self.selected_name.clone()));
+        layers.append( &mut canvas.get_layer_group(self.clicked_name.clone()));
+
+        for layer in layers.iter_mut() {
+            layer.item.update_text(self.text.clone())
+        }
+        canvas.layers.append(&mut layers);
+
+
     }
 
     fn get_text(&mut self) -> &str{

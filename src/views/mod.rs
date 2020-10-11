@@ -1,5 +1,5 @@
 use super::canvas::Canvas;
-use super::gui_tk::{Gui,  GuiAction};
+use super::gui_tk::{Gui,  GuiAction, GuiState, Palette};
 use super::state::{Mutator};
 use std::sync::mpsc::{Sender, Receiver};
 use super::joy_pad::{ButtonAction, Action};
@@ -62,6 +62,42 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
     })
 }
 
+pub fn gui_state_updater(object: &mut Box<dyn Gui + Send>, new_state: GuiState, canvas: &mut Canvas) {
+    let current_state = object.get_gui_state();
+    if let GuiState::Base = current_state {
+        match new_state {
+            GuiState::Base => (),
+            _ => {
+                object.set_gui_state(new_state.clone(), canvas);
+            }
+        }
+    }
+    if let GuiState::Clicked = current_state {
+        match new_state {
+            GuiState::Clicked => (),
+            _ => {
+                object.set_gui_state(new_state.clone(), canvas);
+            }
+        }
+    }
+    if let GuiState::Selected = current_state {
+        match new_state {
+            GuiState::Selected => (),
+            _ => {
+                object.set_gui_state(new_state.clone(), canvas);
+            }
+        }
+    }
+
+
+}
+
+#[derive(Clone)]
+pub struct ViewSettings {
+    pub device: &'static str,
+    pub palette: Palette,
+    pub font_file: &'static str
+}
 
 pub struct RootView {
     bar: View,
