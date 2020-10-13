@@ -105,11 +105,12 @@ impl Canvas {
             }
         }
 
-        for i in to_return.iter() {
+        for i in to_return.iter().rev() {
             debug!("Remove Layer: {}", i);
             result.push(self.layers.remove(*i));
         }
        
+        result.reverse();
         result
     }
 }
