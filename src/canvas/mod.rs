@@ -7,6 +7,7 @@ use std::fs::File;
 use std::io::Read;
 
 // Layer
+use log::*;
 
 #[derive(Clone, Debug)]
 pub struct Layer<T> {
@@ -105,6 +106,7 @@ impl Canvas {
         }
 
         for i in to_return.iter() {
+            debug!("Remove Layer: {}", i);
             result.push(self.layers.remove(*i));
         }
        
