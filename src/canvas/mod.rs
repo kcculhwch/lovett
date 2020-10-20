@@ -2,10 +2,11 @@
 use super::fb::FB;
 use super::fb::Color;
 use image::{DynamicImage, Rgba }; // rgba is used internally by rusttype and image
-use rusttype::{point, Font, Scale};
+//use rusttype::{point, Font, Scale};
 use std::fs::File;
 use std::io::Read;
-
+use glyph_brush_layout::*;
+use ab_glyph::*;
 // Layer
 use log::*;
 
@@ -302,8 +303,8 @@ pub struct Text {
     pub w: i32,
     pub h: i32, 
     content: String,
-    font: Font<'static>,
-    scale: Scale,
+    font: FontVec,
+    scale: PxScale,
     color: Color,
     img: DynamicImage, // we store the actual rasterized text here and enough to rerasterize later
     img_x: u32,
@@ -317,76 +318,77 @@ impl Text {
         let mut file = File::open(font).expect("Font File Not Found");
         let mut font_data: Vec<u8> = vec![];
         file.read_to_end(&mut font_data).expect("Unable to Read Font File");
-
-        let font = Font::try_from_vec(font_data).expect("Error constructing Font");
-        let scale = Scale::uniform(size);
-        let (image, img_x, img_y, w, h) = Text::layout_string(x, y, &color, &font, &content, scale, padding);
+        let font = FontVec::try_from_vec(font_data).unwrap();
+        let scale = PxScale::from(size);
+        let (image, img_x, img_y, w, h) = Text::layout_string(x, y, &color, &font, &content, &scale, padding);
         Text {
             x, y, w: w as i32, h: h as i32, content, scale, color, img: image, font, img_x, img_y, padding
         }
     }
     
    
-    pub fn layout_string(x: i32, y: i32, color: &Color, font: &Font<'static>, content: &String, scale: Scale, padding: u32) -> (DynamicImage, u32, u32, u32, u32 ){
+    pub fn layout_string(x: i32, y: i32, color: &Color, font: &FontVec, content: &String, scale: &PxScale,  padding: u32) -> (DynamicImage, u32, u32, u32, u32 ){
         // Rgba 
         let colour = (color.r, color.g, color.b, color.a);
 
-        let v_metrics = font.v_metrics(scale);
+        let scaled_font = font.as_scaled(scale.clone());
 
-       
-        // layout the glyphs in a line with 20 pixels padding
-        let glyphs: Vec<_> = font
-            .layout(&content, scale, point(0.0, 0.0 + v_metrics.ascent))
-            .collect();
+        let glyphs = Layout::default().calculate_glyphs(
+            &[font],
+            &SectionGeometry {
+                screen_position: (0.0, 0.0),
+                ..SectionGeometry::default()
+            },
+            &[
+                SectionText {
+                    text: content,
+                    scale: scale.clone(),
+                    font_id: FontId(0),
+                },
+            ],
+        );
 
+        
         // work out the layout size
-        let glyphs_height = (v_metrics.ascent - v_metrics.descent).ceil() as u32;
-        let glyphs_width = {
-            let min_x = glyphs
-                .first()
-                .map(|g| g.pixel_bounding_box().unwrap().min.x)
-                .unwrap();
-            let max_x = glyphs
-                .last()
-                .map(|g| g.pixel_bounding_box().unwrap().max.x)
-                .unwrap();
-            (max_x - min_x) as u32
+        let g_h = scaled_font.height().ceil() as u32;
+        let g_w = {
+            let min_x = glyphs.first().unwrap().glyph.position.x;
+            let last_glyph = glyphs.last().unwrap().glyph.clone();
+            let max_x = last_glyph.position.x + scaled_font.h_advance(last_glyph.id);
+            (max_x - min_x).ceil() as u32
         };
+        // Create a new rgba image with some padding
+        let w: u32 = g_w + padding;
+        let h: u32 = g_h + padding;
+
 
         // Create a new rgba image with some padding
-        let w: u32 = glyphs_width + padding;
-        let h: u32 = glyphs_height + padding;
+        let mut image = DynamicImage::new_rgba8(w, h).to_rgba();
 
-        let mut img = DynamicImage::new_rgba8(w, h).to_rgba();
-        
         // Loop through the glyphs in the text, positing each one on a line
-        for glyph in glyphs {
-            if let Some(bounding_box) = glyph.pixel_bounding_box() {
+        for glyph_w in glyphs {
+            let glyph = glyph_w.glyph;
+            if let Some(outlined) = scaled_font.outline_glyph(glyph) {
+                let bounds = outlined.px_bounds();
                 // Draw the glyph into the image per-pixel by using the draw closure
-                glyph.draw(|x, y, v| {
-                    let alpha: u8;
-                    if colour.3  == 255 {
-                        alpha = (v * 255.0) as u8;
-                    } else {
-                        alpha = ((colour.3 as f32 / 255.0 ) * (1.0 - v) + (v * 255.0)) as u8; //not quite right ... need to look up formula
-                    }
-                    img.put_pixel(
-                        // Offset the position by the glyph bounding box
-                        x + bounding_box.min.x as u32,
-                        y + bounding_box.min.y as u32,
-                        // Turn the coverage into an alpha value
-                        Rgba([colour.0, colour.1, colour.2, alpha]),
-                    )
+                outlined.draw(|x, y, v| {
+                    // Offset the position by the glyph bounding box
+                    let px = image.get_pixel_mut(x + bounds.min.x as u32, y + bounds.min.y as u32);
+                    // Turn the coverage into an alpha value (blended with any previous)
+                    *px = Rgba([
+                        colour.0,
+                        colour.1,
+                        colour.2,
+                        px.0[3].saturating_add((v * 255.0) as u8),
+                    ]);
                 });
             }
         }
 
-        let image = DynamicImage::ImageRgba8(img);
-        // build the img
+        let image = DynamicImage::ImageRgba8(image);
         let img_x = adjust_img_loc(x, 0, w);        
 
         let img_y = adjust_img_loc(y, 0, h);
-        // (DynamicImage, u32, u32, u32, u32 )
         (image, img_x, img_y, w, h)
     }
 }
@@ -468,7 +470,7 @@ impl Draw for Text {
     }
     fn update_text(&mut self, new_content: String) {
         if new_content != self.content {
-            let (image, img_x, img_y, w, h) = Text::layout_string(self.x, self.y, &self.color, &self.font, &self.content, self.scale, self.padding);
+            let (image, img_x, img_y, w, h) = Text::layout_string(self.x, self.y, &self.color, &self.font, &self.content, &self.scale,  self.padding);
             self.content = new_content;
             self.img_x = img_x;
             self.img_y = img_y;
