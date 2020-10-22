@@ -324,7 +324,7 @@ impl Text {
         let mut draw_cache = DrawCache::builder().build();
         let font = FontVec::try_from_vec(font_data).unwrap();
         let scale = PxScale::from(size);
-        let mut texture: Vec<u8> = vec![];
+        let mut texture: Vec<u8> = vec![0; 256 * 256];
         let (image, img_x, img_y, w, h) = Text::layout_string(x, y, &color, &font, &content, &scale, padding, &mut draw_cache, &mut texture);
         Text {
             x, y, w: w as i32, h: h as i32, content, scale, color, img: image, font, img_x, img_y, padding, draw_cache, texture
