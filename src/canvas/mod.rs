@@ -366,7 +366,7 @@ impl Text {
         let w: u32 = g_w + padding;
         let h: u32 = g_h + padding;
 
-
+        debug!("Image size: {} x {}", w, h);
         // Create a new rgba image with some padding
         let mut image = DynamicImage::new_rgba8(w, h).to_rgba();
 
@@ -386,11 +386,12 @@ impl Text {
                     // width 
                     let width = (px_coords.max.x - px_coords.min.x) as usize;
                     let height = (px_coords.max.y - px_coords.min.y) as usize;
+                    let point = glyph.position;
+                    debug!("Copy Glyph at ({}, {}) - ({}, {}) to ({}, {})", px_coords.min.x, px_coords.min.y, px_coords.max.x, px_coords.max.y,  point.x, point.y);
                     for y in 0..height {
                         for x in 0..width {
                             // texture value []
                             let alpha: u8 = texture[x + px_coords.min.x as usize + ( y + px_coords.min.y as usize * 256)];
-                            let point = glyph.position;
                             let px = image.get_pixel_mut(x as u32 + point.x as u32, y as u32 + point.y as u32);
                             // Turn the coverage into an alpha value (blended with any previous)
                             *px = Rgba([
