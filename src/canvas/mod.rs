@@ -7,6 +7,7 @@ use std::fs::File;
 use std::io::Read;
 use glyph_brush_layout::*;
 use ab_glyph::*;
+use glyph_brush_draw_cache::{DrawCache, Rectangle};
 // Layer
 use log::*;
 
@@ -309,7 +310,9 @@ pub struct Text {
     img: DynamicImage, // we store the actual rasterized text here and enough to rerasterize later
     img_x: u32,
     img_y: u32,
-    padding: u32
+    padding: u32,
+    draw_cache: DrawCache,
+    texture: Vec<u8>
 
 }
 
@@ -318,23 +321,25 @@ impl Text {
         let mut file = File::open(font).expect("Font File Not Found");
         let mut font_data: Vec<u8> = vec![];
         file.read_to_end(&mut font_data).expect("Unable to Read Font File");
+        let mut draw_cache = DrawCache::builder().build();
         let font = FontVec::try_from_vec(font_data).unwrap();
         let scale = PxScale::from(size);
-        let (image, img_x, img_y, w, h) = Text::layout_string(x, y, &color, &font, &content, &scale, padding);
+        let mut texture: Vec<u8> = vec![];
+        let (image, img_x, img_y, w, h) = Text::layout_string(x, y, &color, &font, &content, &scale, padding, &mut draw_cache, &mut texture);
         Text {
-            x, y, w: w as i32, h: h as i32, content, scale, color, img: image, font, img_x, img_y, padding
+            x, y, w: w as i32, h: h as i32, content, scale, color, img: image, font, img_x, img_y, padding, draw_cache, texture
         }
     }
     
    
-    pub fn layout_string(x: i32, y: i32, color: &Color, font: &FontVec, content: &String, scale: &PxScale,  padding: u32) -> (DynamicImage, u32, u32, u32, u32 ){
+    pub fn layout_string(x: i32, y: i32, color: &Color, font: &FontVec, content: &String, scale: &PxScale,  padding: u32, draw_cache: &mut DrawCache, texture: &mut Vec<u8>) -> (DynamicImage, u32, u32, u32, u32 ){
         // Rgba 
         let colour = (color.r, color.g, color.b, color.a);
 
         let scaled_font = font.as_scaled(scale.clone());
-
+        let fonts = [font];
         let glyphs = Layout::default().calculate_glyphs(
-            &[font],
+            &fonts,
             &SectionGeometry {
                 screen_position: (0.0, 0.0),
                 ..SectionGeometry::default()
@@ -365,23 +370,43 @@ impl Text {
         // Create a new rgba image with some padding
         let mut image = DynamicImage::new_rgba8(w, h).to_rgba();
 
+        for glyph_w in glyphs.clone() {
+            draw_cache.queue_glyph(glyph_w.font_id.0, glyph_w.glyph);
+        }
+
+        draw_cache.cache_queued(&fonts, |rect, tex_data| Text::update_texture(rect, tex_data, texture)).unwrap();
+
+
         // Loop through the glyphs in the text, positing each one on a line
         for glyph_w in glyphs {
             let glyph = glyph_w.glyph;
-            if let Some(outlined) = scaled_font.outline_glyph(glyph) {
-                let bounds = outlined.px_bounds();
-                // Draw the glyph into the image per-pixel by using the draw closure
-                outlined.draw(|x, y, v| {
-                    // Offset the position by the glyph bounding box
-                    let px = image.get_pixel_mut(x + bounds.min.x as u32, y + bounds.min.y as u32);
-                    // Turn the coverage into an alpha value (blended with any previous)
-                    *px = Rgba([
-                        colour.0,
-                        colour.1,
-                        colour.2,
-                        px.0[3].saturating_add((v * 255.0) as u8),
-                    ]);
-                });
+
+            match draw_cache.rect_for(glyph_w.font_id.0, &glyph) {
+                Some((_tex_coords, px_coords)) => {
+                    // width 
+                    let width = (px_coords.max.x - px_coords.min.x) as usize;
+                    let height = (px_coords.max.y - px_coords.min.y) as usize;
+                    for y in 0..height {
+                        for x in 0..width {
+                            // texture value []
+                            let alpha: u8 = texture[x + px_coords.min.x as usize + ( y + px_coords.min.y as usize * 256)];
+                            let point = glyph.position;
+                            let px = image.get_pixel_mut(x as u32 + point.x as u32, y as u32 + point.y as u32);
+                            // Turn the coverage into an alpha value (blended with any previous)
+                            *px = Rgba([
+                                colour.0,
+                                colour.1,
+                                colour.2,
+                                alpha
+                            ]);
+                           
+                        }
+
+                    }
+                
+
+                }
+                None => {/* The glyph has no outline, or wasn't queued up to be cached */}
             }
         }
 
@@ -390,6 +415,22 @@ impl Text {
 
         let img_y = adjust_img_loc(y, 0, h);
         (image, img_x, img_y, w, h)
+    }
+
+    pub fn update_texture(rect: Rectangle<u32>, tex_data: &[u8], texture: &mut Vec<u8>) {       
+        // rect == where in the texture we want to cache the data
+        // tex_data alpha value for each pixel 
+        // texture 256 x 256 inlined vec
+        let width: usize = (rect.max[0] - rect.min[0]) as usize;
+        let height: usize = (rect.max[1] - rect.min[1]) as usize;
+        for y in 0..height {
+            for x in 0..width {
+                texture[x + rect.min[0] as usize + ( y + rect.min[1] as usize * 256)] = tex_data[(y * width) + x];
+                // copy data at y * width + x
+                // to texture[x + rect.min[0] + ( y + rect.min[1] * 256)]   
+            
+            }
+        }
     }
 }
 
@@ -470,7 +511,7 @@ impl Draw for Text {
     }
     fn update_text(&mut self, new_content: String) {
         if new_content != self.content {
-            let (image, img_x, img_y, w, h) = Text::layout_string(self.x, self.y, &self.color, &self.font, &self.content, &self.scale,  self.padding);
+            let (image, img_x, img_y, w, h) = Text::layout_string(self.x, self.y, &self.color, &self.font, &self.content, &self.scale,  self.padding, &mut self.draw_cache, &mut self.texture);
             self.content = new_content;
             self.img_x = img_x;
             self.img_y = img_y;
