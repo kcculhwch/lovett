@@ -375,6 +375,7 @@ impl Text {
         }
 
         draw_cache.cache_queued(&fonts, |rect, tex_data| Text::update_texture(rect, tex_data, texture)).unwrap();
+/*
         let mut output:String  = String::from( "");
 
         for i in 0..texture.len() {
@@ -388,7 +389,7 @@ impl Text {
                 output = String::from("");
             }
         }
-
+*/
         // Loop through the glyphs in the text, positing each one on a line
         for glyph_w in glyphs {
             let glyph = glyph_w.glyph;
