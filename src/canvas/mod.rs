@@ -380,34 +380,36 @@ impl Text {
         // Loop through the glyphs in the text, positing each one on a line
         for glyph_w in glyphs {
             let glyph = glyph_w.glyph;
+            if let Some(outlined) = scaled_font.outline_glyph(glyph.clone()) {
+                let bounds = outlined.px_bounds();
+                match draw_cache.rect_for(glyph_w.font_id.0, &glyph) {
+                    Some((_tex_coords, px_coords)) => {
+                        // width 
+                        let width = (px_coords.max.x - px_coords.min.x) as usize;
+                        let height = (px_coords.max.y - px_coords.min.y) as usize;
+                        debug!("Copy Glyph at ({}, {}) - ({}, {}) to ({}, {})", px_coords.min.x, px_coords.min.y, px_coords.max.x, px_coords.max.y,  bounds.min.x, bounds.min.y);
+                        for y in 0..height {
+                            for x in 0..width {
+                                // texture value []
+                                let alpha: u8 = texture[x + px_coords.min.x as usize + ( y + px_coords.min.y as usize * 256)];
+                                let px = image.get_pixel_mut(x as u32 + bounds.min.x as u32, y as u32 + bounds.min.y as u32);
+                                // Turn the coverage into an alpha value (blended with any previous)
+                                *px = Rgba([
+                                    colour.0,
+                                    colour.1,
+                                    colour.2,
+                                    alpha
+                                ]);
+                               
+                            }
 
-            match draw_cache.rect_for(glyph_w.font_id.0, &glyph) {
-                Some((_tex_coords, px_coords)) => {
-                    // width 
-                    let width = (px_coords.max.x - px_coords.min.x) as usize;
-                    let height = (px_coords.max.y - px_coords.min.y) as usize;
-                    let point = glyph.position;
-                    debug!("Copy Glyph at ({}, {}) - ({}, {}) to ({}, {})", px_coords.min.x, px_coords.min.y, px_coords.max.x, px_coords.max.y,  point.x, point.y);
-                    for y in 0..height {
-                        for x in 0..width {
-                            // texture value []
-                            let alpha: u8 = texture[x + px_coords.min.x as usize + ( y + px_coords.min.y as usize * 256)];
-                            let px = image.get_pixel_mut(x as u32 + point.x as u32, y as u32 + point.y as u32);
-                            // Turn the coverage into an alpha value (blended with any previous)
-                            *px = Rgba([
-                                colour.0,
-                                colour.1,
-                                colour.2,
-                                alpha
-                            ]);
-                           
                         }
+                    
 
                     }
-                
-
+                    None => {/* The glyph has no outline, or wasn't queued up to be cached */}
                 }
-                None => {/* The glyph has no outline, or wasn't queued up to be cached */}
+
             }
         }
 
