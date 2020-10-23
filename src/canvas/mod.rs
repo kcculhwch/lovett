@@ -375,14 +375,6 @@ impl Text {
         }
 
         draw_cache.cache_queued(&fonts, |rect, tex_data| Text::update_texture(rect, tex_data, texture)).unwrap();
-        let mut output:String  = String::from( "");
-        for i in 0..texture.len() {
-            output = format!("{}{}", output, texture[i]);
-            if i % 256 == 0 {
-                debug!("{}", output);
-                output = String::from("");
-            }
-        }
 
         // Loop through the glyphs in the text, positing each one on a line
         for glyph_w in glyphs {
@@ -433,6 +425,17 @@ impl Text {
         // texture 256 x 256 inlined vec
         let width: usize = (rect.max[0] - rect.min[0]) as usize;
         let height: usize = (rect.max[1] - rect.min[1]) as usize;
+
+        let mut output:String  = String::from( "");
+        for i in 0..tex_data.len() {
+            output = format!("{}{}", output, tex_data[i]);
+            if i % width == 0 {
+                debug!("{}", output);
+                output = String::from("");
+            }
+        }
+
+
         for y in 0..height {
             for x in 0..width {
                 texture[x + rect.min[0] as usize + ( y + rect.min[1] as usize * 256)] = tex_data[(y * width) + x];
