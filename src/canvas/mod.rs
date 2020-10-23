@@ -390,7 +390,7 @@ impl Text {
                         for y in 0..height {
                             for x in 0..width {
                                 // texture value []
-                                let alpha: u8 = texture[x + px_coords.min.x as usize + ( y + px_coords.min.y as usize * 256)];
+                                let alpha: u8 = texture[x + px_coords.min.x as usize + ( (y + px_coords.min.y as usize) * 256)];
                                 let px = image.get_pixel_mut(x as u32 + bounds.min.x as u32, y as u32 + bounds.min.y as u32);
                                 // Turn the coverage into an alpha value (blended with any previous)
                                 *px = Rgba([
@@ -425,8 +425,9 @@ impl Text {
         // texture 256 x 256 inlined vec
         let width: usize = (rect.max[0] - rect.min[0]) as usize;
         let height: usize = (rect.max[1] - rect.min[1]) as usize;
-
+/*
         let mut output:String  = String::from( "");
+
         for i in 0..tex_data.len() {
             output = format!("{}{}", output, tex_data[i]);
             if i % width == 0 {
@@ -435,10 +436,10 @@ impl Text {
             }
         }
 
-
+*/
         for y in 0..height {
             for x in 0..width {
-                texture[x + rect.min[0] as usize + ( y + rect.min[1] as usize * 256)] = tex_data[(y * width) + x];
+                texture[x + rect.min[0] as usize + ( (y + rect.min[1] as usize) * 256)] = tex_data[(y * width) + x];
                 // copy data at y * width + x
                 // to texture[x + rect.min[0] + ( y + rect.min[1] * 256)]   
             
