@@ -1,7 +1,6 @@
 // Crates
 extern crate framebuffer;
 extern crate image;
-extern crate rusttype;
 extern crate serde;
 extern crate bincode;
 
