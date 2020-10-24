@@ -10,6 +10,7 @@ use ab_glyph::*;
 use glyph_brush_draw_cache::{DrawCache, Rectangle};
 // Layer
 use log::*;
+use log::Level::*;
 
 #[derive(Clone, Debug)]
 pub struct Layer<T> {
@@ -375,26 +376,25 @@ impl Text {
         }
 
         draw_cache.cache_queued(&fonts, |rect, tex_data| Text::update_texture(rect, tex_data, texture)).unwrap();
-/*
-        let mut output:String  = String::from( "");
+        // if you need to see the buffer raw
+        if log_enabled!(Trace) {
+            let mut output:String  = String::from( "");
 
-        for i in 0..texture.len() {
-            if texture[i] != 0 {
-                output = format!("{}*", output);
-            } else {
-                output = format!("{} ", output);
-            }
-            if i % 256 == 0 {
-                debug!("{}", output);
-                output = String::from("");
+            for i in 0..texture.len() {
+                if texture[i] != 0 {
+                    output = format!("{}*", output);
+                } else {
+                    output = format!("{} ", output);
+                }
+                if i % 256 == 0 {
+                    trace!("{}", output);
+                    output = String::from("");
+                }
             }
         }
-*/
         // Loop through the glyphs in the text, positing each one on a line
         for glyph_w in glyphs {
             let glyph = glyph_w.glyph;
-//            if let Some(outlined) = scaled_font.outline_glyph(glyph.clone()) {
-//                let bounds = outlined.px_bounds();
                 match draw_cache.rect_for(glyph_w.font_id.0, &glyph) {
                     Some((tex_coords, px_coords)) => {
                         // width 
@@ -402,8 +402,6 @@ impl Text {
                         let y_1 = (tex_coords.min.y * 256.0) as u32;
                         let x_2 = (tex_coords.max.x * 256.0) as u32;
                         let y_2 = (tex_coords.max.y * 256.0) as u32;
-
-
                         let width = (x_2 - x_1) as usize;
                         let height = (y_2 - y_1) as usize;
                         debug!("Copy Glyph at ({}, {}) - ({}, {}) to ({}, {})", x_1, y_1, x_2, y_2,  px_coords.min.x, px_coords.min.y);
@@ -419,18 +417,12 @@ impl Text {
                                     colour.2,
                                     alpha
                                 ]);
-                               
                             }
-
                         }
-                    
-
                     }
-                    None => {/* The glyph has no outline, or wasn't queued up to be cached */}
-                }
-
+                None => {/* The glyph has no outline, or wasn't queued up to be cached */}
             }
-  //      }
+        }
 
         let image = DynamicImage::ImageRgba8(image);
         let img_x = adjust_img_loc(x, 0, w);        
@@ -445,18 +437,18 @@ impl Text {
         // texture 256 x 256 inlined vec
         let width: usize = (rect.max[0] - rect.min[0]) as usize;
         let height: usize = (rect.max[1] - rect.min[1]) as usize;
-/*
-        let mut output:String  = String::from( "");
 
-        for i in 0..tex_data.len() {
-            output = format!("{}{}", output, tex_data[i]);
-            if i % width == 0 {
-                debug!("{}", output);
-                output = String::from("");
+        if log_enabled!(Trace) {
+            let mut output:String  = String::from( "");
+            //raw data of the rasterized glyph
+            for i in 0..tex_data.len() {
+                output = format!("{}{}", output, tex_data[i]);
+                if i % width == 0 {
+                    trace!("{}", output);
+                    output = String::from("");
+                }
             }
         }
-
-*/
         for y in 0..height {
             for x in 0..width {
                 texture[x + rect.min[0] as usize + ( (y + rect.min[1] as usize) * 256)] = tex_data[(y * width) + x];
