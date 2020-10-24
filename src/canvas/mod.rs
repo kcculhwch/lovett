@@ -378,19 +378,8 @@ impl Text {
         draw_cache.cache_queued(&fonts, |rect, tex_data| Text::update_texture(rect, tex_data, texture)).unwrap();
         // if you need to see the buffer raw
         if log_enabled!(Trace) {
-            let mut output:String  = String::from( "");
-
-            for i in 0..texture.len() {
-                if texture[i] != 0 {
-                    output = format!("{}*", output);
-                } else {
-                    output = format!("{} ", output);
-                }
-                if i % 256 == 0 {
-                    trace!("{}", output);
-                    output = String::from("");
-                }
-            }
+            trace!("Full glyph  cache");
+            trace_cache(texture, 256);
         }
         // Loop through the glyphs in the text, positing each one on a line
         for glyph_w in glyphs {
@@ -439,15 +428,8 @@ impl Text {
         let height: usize = (rect.max[1] - rect.min[1]) as usize;
 
         if log_enabled!(Trace) {
-            let mut output:String  = String::from( "");
-            //raw data of the rasterized glyph
-            for i in 0..tex_data.len() {
-                output = format!("{}{}", output, tex_data[i]);
-                if i % width == 0 {
-                    trace!("{}", output);
-                    output = String::from("");
-                }
-            }
+            trace!("cacheing glyph:");
+            trace_cache(tex_data, width);
         }
         for y in 0..height {
             for x in 0..width {
@@ -598,4 +580,22 @@ pub fn adjust_img_loc(pt: i32, img_pt: u32, max: u32) -> u32 {
     }
 */
 
+// helpers
 
+fn trace_cache(cache: &[u8], width: usize){
+            let mut output:String  = String::from( "");
+
+            for i in 0..cache.len() {
+                if cache[i] != 0 {
+                    output = format!("{}*", output);
+                } else {
+                    output = format!("{} ", output);
+                }
+                if i % width == 0 {
+                    trace!("{}", output);
+                    output = String::from("");
+                }
+            }
+
+
+}
