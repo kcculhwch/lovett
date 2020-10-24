@@ -367,7 +367,7 @@ impl Text {
         let w: u32 = g_w + padding;
         let h: u32 = g_h + padding;
 
-        debug!("Image size: {} x {}", w, h);
+        trace!("Text Image size: {} x {}", w, h);
         // Create a new rgba image with some padding
         let mut image = DynamicImage::new_rgba8(w, h).to_rgba();
 
@@ -393,7 +393,7 @@ impl Text {
                         let y_2 = (tex_coords.max.y * 256.0) as u32;
                         let width = (x_2 - x_1) as usize;
                         let height = (y_2 - y_1) as usize;
-                        debug!("Copy Glyph at ({}, {}) - ({}, {}) to ({}, {})", x_1, y_1, x_2, y_2,  px_coords.min.x, px_coords.min.y);
+                        trace!("Copy Glyph at ({}, {}) - ({}, {}) to ({}, {})", x_1, y_1, x_2, y_2,  px_coords.min.x, px_coords.min.y);
                         for y in 0..height {
                             for x in 0..width {
                                 // texture value []
