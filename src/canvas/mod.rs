@@ -393,18 +393,24 @@ impl Text {
         // Loop through the glyphs in the text, positing each one on a line
         for glyph_w in glyphs {
             let glyph = glyph_w.glyph;
-            if let Some(outlined) = scaled_font.outline_glyph(glyph.clone()) {
-                let bounds = outlined.px_bounds();
+//            if let Some(outlined) = scaled_font.outline_glyph(glyph.clone()) {
+//                let bounds = outlined.px_bounds();
                 match draw_cache.rect_for(glyph_w.font_id.0, &glyph) {
                     Some((tex_coords, px_coords)) => {
                         // width 
-                        let width = (tex_coords.max.x - tex_coords.min.x) as usize;
-                        let height = (tex_coords.max.y - tex_coords.min.y) as usize;
-                        debug!("Copy Glyph at ({}, {}) - ({}, {}) to ({}, {})", tex_coords.min.x, tex_coords.min.y, tex_coords.max.x, tex_coords.max.y,  px_coords.min.x, px_coords.min.y);
+                        let x_1 = (tex_coords.min.x * 256.0) as u32;
+                        let y_1 = (tex_coords.min.y * 256.0) as u32;
+                        let x_2 = (tex_coords.max.x * 256.0) as u32;
+                        let y_2 = (tex_coords.max.y * 256.0) as u32;
+
+
+                        let width = (x_2 - x_1) as usize;
+                        let height = (y_2 - y_1) as usize;
+                        debug!("Copy Glyph at ({}, {}) - ({}, {}) to ({}, {})", x_1, y_1, x_2, y_2,  px_coords.min.x, px_coords.min.y);
                         for y in 0..height {
                             for x in 0..width {
                                 // texture value []
-                                let alpha: u8 = texture[x + tex_coords.min.x as usize + ( (y + tex_coords.min.y as usize) * 256)];
+                                let alpha: u8 = texture[x + x_1 as usize + ( (y + y_1 as usize) * 256)];
                                 let px = image.get_pixel_mut(x as u32 + px_coords.min.x as u32, y as u32 + px_coords.min.y as u32);
                                 // Turn the coverage into an alpha value (blended with any previous)
                                 *px = Rgba([
@@ -424,7 +430,7 @@ impl Text {
                 }
 
             }
-        }
+  //      }
 
         let image = DynamicImage::ImageRgba8(image);
         let img_x = adjust_img_loc(x, 0, w);        
