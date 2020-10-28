@@ -1,5 +1,6 @@
 # Lovett
 A Rusty Pi Application Framework
+
 ![Lovett Logo](/assets/lovett.png "Lovett")
 
 ## Lovett is a Framework
@@ -113,14 +114,51 @@ Create the input_pad object with the Vector and the input channel.
 
 Create the root_state holder. (This still has way to much specific stuff in it)
 
-```rust
-        // setup the root state object
-        let mut root_state = RootState::new();
+* `state/mod.rd` Define the Struct that will represent your program state
 
-        // get a state mutation sender for time keeping thread
-        // we setup a time keeper thread on a 1 second resolution to trigger initial state senders
-        let time_mutator = root_state.get_mutation_sender();
-        time_keeper(time_mutator);
+```rust
+pub mod mutators;                       // Include mutators
+use serde::{Serialize, Deserialize};    // make sure we have Serialize and Deserialize decorators
+
+use lovett::gui_tk::*;                  // we will likely need to reference some Gui properties
+
+pub fn state_decoder(state: &[u8]) -> State{  // helper function for decoding serialized state array
+    bincode::deserialize(state).unwrap()
+}
+
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct State {
+    example: String,
+    ...
+}
+
+
+impl State {
+    pub fn new() -> State {
+...
+}
+```
+* state/mutators/mod.rs Define the mutator functions that will be triggered
+```rust
+use lovett::state::*;
+use lovett::gui_tk::*;
+use super::*
+
+;
+pub fn setup(root_state: &mut RootState) {
+        // create the mutator handlers
+        let example_updater: StateMutator = |state, mutator_signal| {
+            let mut decoded_state = state_decoder(state);
+            decoded_state.example = mutator_signal.value;
+            bincode::serialize(&decoded_state).unwrap()
+        };
+
+        ...
+
+        root_state.mutators.insert("[Example Mutation]", example_updater);
+
+}
 ```
 
 #### Setup View
