@@ -1,5 +1,6 @@
 # Lovett
 A Rusty Pi Application Framework
+![Lovett Logo](/assets/lovett.png "Lovett")
 
 ## Lovett is a Framework
 
