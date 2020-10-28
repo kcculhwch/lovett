@@ -19,17 +19,23 @@ lovett = { git = "https://github.com/kcculhwch/lovett" }
 
 In your `main.rs`
 
-```rs
-extern crate lovett;
+```rust
 
-mod app;
+// Crates
+extern crate lovett;      // The Framework
+extern crate serde;       // If you use the root_state handler you will need serde and bincode to for the state
+extern crate bincode;     // object generator.
+extern crate env_logger;  // env_logger is just an easy to use logger for getting log values out of the Framework
+mod app;                  // the app module which we will outline below
 
-use app::*;
+use app::*;               // import the app exports for use here.
 
 fn main()  {
-    let app = App::new();
-    run_app(app);
+    env_logger::init();   // setup the looger 
+    let app = App::new(); // construct the app
+    run_app(app);         // spin up the app threads
 }
+
 ```
 
 Create a `./app/mod.rs`
@@ -37,17 +43,17 @@ Create a `./app/mod.rs`
 It should define the `App` `struct`, and `impl`, as well as the `run_app` thread starter.
 
 * `struct App`
-```rs
+```rust
 pub struct App {
-    pub root_controller: RootController, // for handling GuiAction inputs on a mspc channel
-    pub root_state: RootState, // for broadcasting state changes and receiving mutator requests
-    pub root_view: RootView, // receives state updates, handles gui / input_pad interactions ... send GuiActions to the Controller
-    pub input_pad: Pad // handles raw button_actions, sends them to the root_view
+    pub root_controller: RootController,        // for handling GuiAction inputs on a mspc channel
+    pub root_state: RootState,                  // for broadcasting state changes and receiving mutator requests
+    pub root_view: RootView,                    // receives state updates, handles gui / input_pad interactions ... send GuiActions to the Controller
+    pub input_pad: Pad                          // handles raw button_actions, sends them to the root_view
 }
 ```
 
-* `impl App
-```rs
+* `impl App`
+```rust
 impl App {
 
     pub fn new() -> App{
@@ -57,7 +63,7 @@ impl App {
 ```
 
 * `run_app`
-```rs
+```rust
 pub fn run_app(app: App) {
     run_pad(app.input_pad);
     run_view(app.root_view);
@@ -79,7 +85,7 @@ Create input_rx and input_tx channels
 
 Create the input_pad object with the Vector and the input channel.
 
-```rs
+```rust
         // setup hw buttons
         let button_initializers = vec![
             ButtonInitializer {pin: 5, code: 0, key: "b"}, 
@@ -107,7 +113,7 @@ Create the input_pad object with the Vector and the input channel.
 
 Create the root_state holder. (This still has way to much specific stuff in it)
 
-```rs
+```rust
         // setup the root state object
         let mut root_state = RootState::new();
 
