@@ -48,15 +48,15 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
                 Err(_) => ()
             }
 
-            match root_view.state_receiver.try_recv() {
-                Ok(state) => {
-                    root_view.update_bar(&state[..]);
-                    root_view.update_active_view(&state[..]);
-                    root_view.render();
-                    debug!("Root View Received State Update");
-                },
-                Err(_) => ()
-            };
+            //match root_view.state_receiver.try_recv() {
+            //    Ok(state) => {
+                    if root_view.update_bar() || root_view.update_active_view() {
+                        root_view.render();
+                    }
+             //       debug!("Root View Received State Update");
+             //   },
+             //   Err(_) => ()
+            //};
             thread::sleep(Duration::from_millis(5));
         }
     })
@@ -104,20 +104,18 @@ pub struct RootView {
     views: Vec<Box<View>>,
     active: usize,
     canvas: Canvas,
-    state_receiver: Receiver<Vec<u8>>,
     input_receiver: Receiver<Vec<ButtonAction>>,
     action_sender: Sender<GuiAction>
 }
 
 impl RootView {
-    pub fn new(fbdev: &'static str, state_receiver: Receiver<Vec<u8>>,  input_receiver: Receiver<Vec<ButtonAction>>, action_sender: Sender<GuiAction>, info_bar_view: View) -> RootView {
+    pub fn new(fbdev: &'static str,  input_receiver: Receiver<Vec<ButtonAction>>, action_sender: Sender<GuiAction>, info_bar_view: View) -> RootView {
         let canvas: Canvas = Canvas::new(fbdev);
         RootView {
             bar: info_bar_view,
             views: vec![],
             canvas: canvas,
             active: 0,
-            state_receiver,
             input_receiver,
             action_sender
         }
@@ -152,8 +150,8 @@ impl RootView {
     }
 
     // update the top bar
-    pub fn update_bar(&mut self, state: &[u8]) -> bool {
-        self.bar.update(state, &mut self.canvas)
+    pub fn update_bar(&mut self) -> bool {
+        self.bar.update(&mut self.canvas)
     }
 
     pub fn activate_bar(&mut self) -> bool {
@@ -169,11 +167,15 @@ impl RootView {
         }
     }
 
-    pub fn update_active_view(&mut self, state: &[u8]){
+    pub fn update_active_view(&mut self) -> bool{
         if self.views.len() > self.active {
-            self.views[self.active].update(state, &mut self.canvas);
+            if self.views[self.active].update( &mut self.canvas) {
+                true
+            } else {
+                false
+            }
         } else {
-            panic!("Cannot activate a view which does not exist");
+            panic!("Cannot update a view which does not exist");
         }
    
     }
@@ -206,6 +208,7 @@ pub struct View {
     selected_row: usize,
     selected_column: usize,
     selected_object: usize,
+    state_receiver: Receiver<Vec<u8>>,
     mutation_sender: Sender<Mutator>,
     name: String,
     update_fn: ViewStateUpdater
@@ -214,7 +217,7 @@ pub struct View {
 pub type ViewStateUpdater = fn(&mut  Vec<Box<dyn Gui + Send>>, &[u8], &mut Canvas );
 
 impl View {
-    pub fn new(mutation_sender: Sender<Mutator>, name: String, update_fn: ViewStateUpdater ) -> View {
+    pub fn new(mutation_sender: Sender<Mutator>, name: String, update_fn: ViewStateUpdater, state_receiver: Receiver<Vec<u8>>) -> View {
         let objects: Vec<Box<dyn Gui + Send>> = vec![];
         let nav_index: Vec<Vec<Vec<usize>>> = vec![
                                                       vec![
@@ -241,6 +244,7 @@ impl View {
             selected_column,
             selected_object,
             mutation_sender,
+            state_receiver,
             name,
             update_fn
         }
@@ -491,15 +495,23 @@ impl View {
         true
        // all objects 
     }
-    fn update(&mut self, state: &[u8], canvas: &mut Canvas) -> bool {
+    fn update(&mut self, canvas: &mut Canvas) -> bool {
         // update each object in the view with the correct state data
         // each view will likely have its own linkage to state data
         // so we let the author of the view provide their own updater_fn
-        let update_fn_actor: ViewStateUpdater = self.update_fn;
-
-        update_fn_actor(&mut self.objects, state, canvas);
-        true 
+        let updated = match self.state_receiver.try_recv() {
+            Ok(state) => {
+                let update_fn_actor: ViewStateUpdater = self.update_fn;
+                update_fn_actor(&mut self.objects, &state[..], canvas);
+                true 
+            },
+            Err(_) => {
+                false
+            }
+        };
+        updated
     }
+    
     fn deactivate(&mut self, canvas: &mut Canvas) -> bool {
         for i in (0 as usize)..self.objects.len() {
             if !self.objects[i].deactivate(canvas) {
