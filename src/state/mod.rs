@@ -24,7 +24,7 @@ pub fn run_state(mut root_state:  RootState) -> JoinHandle<()>{
         })
 }
 
-pub type StateMutator = fn(&[u8], Mutation) -> Vec<u8>;
+pub type Mutator = fn(&[u8], Mutation) -> Vec<u8>;
 
 pub type StateSenderFilter = fn(&[u8], &Vec<u8>) -> bool;
 
@@ -39,13 +39,13 @@ pub struct RootState {
     pub filtered_state_senders: Vec<FilteredStateSender>,
     pub mutation_receiver: Receiver<Mutation>,
     mutation_sender: Sender<Mutation>,   
-    pub mutators: HashMap<&'static str, StateMutator>
+    pub mutators: HashMap<&'static str, Mutator>
 }
 
 impl RootState {
     pub fn new(state: Vec<u8>) -> RootState {
         let (sender, receiver) = channel();
-        let mutators: HashMap<&'static str, StateMutator > = HashMap::new();
+        let mutators: HashMap<&'static str, Mutator > = HashMap::new();
         RootState {
             mutators,
             state,
@@ -74,7 +74,7 @@ impl RootState {
         //
         let mutated = match self.mutators.get(mutator.name) {
             Some(mutator_fn) =>  {
-                let state_updater_fn: StateMutator = *mutator_fn;
+                let state_updater_fn: Mutator = *mutator_fn;
                 
                 let new_state = state_updater_fn(&self.state[..], mutator);
                 for filtered_state_sender in &self.filtered_state_senders {
