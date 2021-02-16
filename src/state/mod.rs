@@ -3,6 +3,7 @@ use std::thread;
 use std::thread::JoinHandle;
 use std::collections::HashMap;
 use std::time::{Duration};
+use super::gui_tk::GuiState;
 
 //use chrono::format::strftime;
 //use log::*;
@@ -110,5 +111,47 @@ impl Mutator {
     }
 
 }
+
+pub fn eq_gui_states(gui_states_1: &Vec<GuiState>, gui_states_2: &Vec<GuiState>) -> bool {
+    if gui_states_1.len() == gui_states_2.len() {
+        let mut eq = true;
+        for i in 0..(gui_states_1.len() - 1) {
+            if !eq_gui_state(&gui_states_1[i], &gui_states_2[i]) {
+                eq = false;
+                break;        
+            }
+        }
+        eq
+    } else {
+        false
+    } 
+}
+
+
+pub fn eq_gui_state(gui_state_1: &GuiState, gui_state_2: &GuiState) -> bool {
+    let mut eq = true;
+    if let GuiState::Base = gui_state_1 {
+        eq = match gui_state_2 {
+            GuiState::Base => true,
+            _ => false
+        };
+    }
+
+    if let GuiState::Clicked = gui_state_1 {
+        eq = match gui_state_2 {
+            GuiState::Clicked => true,
+            _ => false
+        };
+    }
+
+    if let GuiState::Selected = gui_state_1 {
+        eq = match gui_state_2 {
+            GuiState::Selected => true,
+            _ => false
+        };
+    }
+    return eq
+}
+
 
 
