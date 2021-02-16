@@ -24,7 +24,7 @@ pub fn run_state(mut root_state:  RootState) -> JoinHandle<()>{
         })
 }
 
-pub type StateMutator = fn(&[u8], Mutator) -> Vec<u8>;
+pub type StateMutator = fn(&[u8], Mutation) -> Vec<u8>;
 
 pub type StateSenderFilter = fn(&[u8], &Vec<u8>) -> bool;
 
@@ -37,8 +37,8 @@ pub struct FilteredStateSender {
 pub struct RootState {
     pub state: Vec<u8>,
     pub filtered_state_senders: Vec<FilteredStateSender>,
-    pub mutation_receiver: Receiver<Mutator>,
-    mutation_sender: Sender<Mutator>,   
+    pub mutation_receiver: Receiver<Mutation>,
+    mutation_sender: Sender<Mutation>,   
     pub mutators: HashMap<&'static str, StateMutator>
 }
 
@@ -65,12 +65,12 @@ impl RootState {
     }
 
 
-    pub fn get_mutation_sender(&self) -> Sender<Mutator> {
+    pub fn get_mutation_sender(&self) -> Sender<Mutation> {
         self.mutation_sender.clone()
     }
 
 
-    pub fn mutate(&mut self, mutator: Mutator) -> bool{
+    pub fn mutate(&mut self, mutator: Mutation) -> bool{
         //
         let mutated = match self.mutators.get(mutator.name) {
             Some(mutator_fn) =>  {
@@ -96,14 +96,14 @@ impl RootState {
 }
 
 #[allow(dead_code)]
-pub struct Mutator {
+pub struct Mutation {
     pub name: &'static str,
     pub value: String,
     pub number: isize
 }
-impl Mutator {
-    pub fn new(name: &'static str, value: String, number: isize) -> Mutator {
-        Mutator {
+impl Mutation {
+    pub fn new(name: &'static str, value: String, number: isize) -> Mutation {
+        Mutation {
             name,
             value,
             number
@@ -115,7 +115,7 @@ impl Mutator {
 pub fn eq_gui_states(gui_states_1: &Vec<GuiState>, gui_states_2: &Vec<GuiState>) -> bool {
     if gui_states_1.len() == gui_states_2.len() {
         let mut eq = true;
-        for i in 0..(gui_states_1.len() - 1) {
+        for i in 0..gui_states_1.len() {
             if !eq_gui_state(&gui_states_1[i], &gui_states_2[i]) {
                 eq = false;
                 break;        

@@ -1,6 +1,6 @@
 use super::canvas::Canvas;
 use super::gui_tk::{Gui,  GuiAction, GuiState, Palette};
-use super::state::{Mutator};
+use super::state::{Mutation};
 use std::sync::mpsc::{Sender, Receiver};
 use super::joy_pad::{ButtonAction, Action};
 
@@ -209,7 +209,7 @@ pub struct View {
     selected_column: usize,
     selected_object: usize,
     state_receiver: Receiver<Vec<u8>>,
-    mutation_sender: Sender<Mutator>,
+    mutation_sender: Sender<Mutation>,
     name: String,
     update_fn: ViewStateUpdater
 }
@@ -217,7 +217,7 @@ pub struct View {
 pub type ViewStateUpdater = fn(&mut  Vec<Box<dyn Gui + Send>>, &[u8], &mut Canvas );
 
 impl View {
-    pub fn new(mutation_sender: Sender<Mutator>, name: String, update_fn: ViewStateUpdater, state_receiver: Receiver<Vec<u8>>) -> View {
+    pub fn new(mutation_sender: Sender<Mutation>, name: String, update_fn: ViewStateUpdater, state_receiver: Receiver<Vec<u8>>) -> View {
         let objects: Vec<Box<dyn Gui + Send>> = vec![];
         let nav_index: Vec<Vec<Vec<usize>>> = vec![
                                                       vec![
@@ -394,7 +394,7 @@ impl View {
             }
             // if change send mutator
             if original_selected_object != self.selected_object {
-                self.mutation_sender.send( Mutator::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+                self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
             }
             
         } // attempted row is out of bounds .. stay where we are
@@ -450,14 +450,14 @@ impl View {
             self.h_cell_move(1);
         }
         if original_selected_object != self.selected_object {
-            self.mutation_sender.send( Mutator::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+            self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
         }
     }
     
     pub fn send_to_selected(&mut self, ba: &ButtonAction) -> Option<GuiAction>{
         let (return_control, mutation, gui_action) = self.objects[self.selected_object].handle_button_action(ba);
         match mutation {
-            Some(mutate) => self.mutation_sender.send(Mutator::new(mutate, self.name.clone(), self.selected_object as isize  )).unwrap(),
+            Some(mutate) => self.mutation_sender.send(Mutation::new(mutate, self.name.clone(), self.selected_object as isize  )).unwrap(),
             None => ()
         };
 
@@ -490,7 +490,7 @@ impl View {
             // find what cell that object is in
             self.selected_column = 0;
             self.selected_row = 0;
-            self.mutation_sender.send( Mutator::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+            self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
         }
         true
        // all objects 
