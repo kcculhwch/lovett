@@ -5,9 +5,8 @@ use uuid::Uuid;
 use super::canvas::{Rect, Layer, Draw, Canvas, Text};
 use super::fb::Color;
 
-use super::joy_pad::ButtonAction;
-use super::joy_pad::Action as JAction;
-
+use super::joy_pad::HIDEvent; 
+use super::joy_pad::IOState;
 
 mod button;
 #[allow(unused_imports)]
@@ -109,7 +108,7 @@ pub trait Gui {
     }
 
     #[allow(unused_variables)]
-    fn handle_button_action(&mut self, ba: &ButtonAction) -> (bool, Option<&'static str>, Option<GuiAction>)  {
+    fn handle_button_action(&mut self, ba: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>)  {
         (true, None, None)
     }
 
@@ -118,34 +117,34 @@ pub trait Gui {
 #[allow(dead_code)]
 pub struct Menu {
     pub items: Vec<MenuItem>,
-    pub action: GuiAction,
+    pub action: Event,
     pub name: &'static str
 }
 
 #[allow(dead_code)]
 pub struct MenuItem {
     pub text: &'static str,
-    pub action: GuiAction,
+    pub action: Event,
     pub name: &'static str
 }
 
 #[allow(dead_code)]
 pub struct GuiImage {
     pub path: &'static str,
-    pub action: GuiAction,
+    pub action: Event,
     pub name: &'static str
 }
 
 
 #[derive(Clone, Debug)]
-pub struct GuiAction {
+pub struct Event {
     pub name: &'static str,
     pub values: Option<Vec<&'static str>>
 }
 
-impl GuiAction {
-    pub fn new(name: &'static str, values: Option<Vec<&'static str>>) -> GuiAction {
-        GuiAction {
+impl Event {
+    pub fn new(name: &'static str, values: Option<Vec<&'static str>>) -> Event {
+        Event {
             name, values
         }
     }

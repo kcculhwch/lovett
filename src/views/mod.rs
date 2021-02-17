@@ -1,8 +1,8 @@
 use super::canvas::Canvas;
-use super::gui_tk::{Gui,  GuiAction, GuiState, Palette};
+use super::gui_tk::{Gui,  Event, GuiState, Palette};
 use super::state::{Mutation};
 use std::sync::mpsc::{Sender, Receiver};
-use super::joy_pad::{ButtonAction, Action};
+use super::joy_pad::{HIDEvent, IOState};
 
 
 use std::thread;
@@ -35,7 +35,7 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
             match root_view.input_receiver.try_recv() {
                 Ok(button_actions) => {
                     for ba in &button_actions {
-                        debug!("ButtonAction: {:#?}", ba);
+                        debug!("HIDEvent: {:#?}", ba);
                         match root_view.handle_button_action(ba) {
                             Some(action) => {
                                 root_view.handle_action(action);                
@@ -104,12 +104,12 @@ pub struct RootView {
     views: Vec<Box<View>>,
     active: usize,
     canvas: Canvas,
-    input_receiver: Receiver<Vec<ButtonAction>>,
-    action_sender: Sender<GuiAction>
+    input_receiver: Receiver<Vec<HIDEvent>>,
+    action_sender: Sender<Event>
 }
 
 impl RootView {
-    pub fn new(fbdev: &'static str,  input_receiver: Receiver<Vec<ButtonAction>>, action_sender: Sender<GuiAction>, info_bar_view: View) -> RootView {
+    pub fn new(fbdev: &'static str,  input_receiver: Receiver<Vec<HIDEvent>>, action_sender: Sender<Event>, info_bar_view: View) -> RootView {
         let canvas: Canvas = Canvas::new(fbdev);
         RootView {
             bar: info_bar_view,
@@ -128,7 +128,7 @@ impl RootView {
     }
 
     // input button handling
-    pub fn handle_button_action(&mut self, ba: &ButtonAction) -> Option<GuiAction>{
+    pub fn handle_button_action(&mut self, ba: &HIDEvent) -> Option<Event>{
         if self.views.len() > self.active {
             match ba.code {
                 0 => self.set_active_view(0), // go home
@@ -139,7 +139,7 @@ impl RootView {
         }
     }
 
-    pub fn handle_action(&mut self, gui_action: GuiAction) {
+    pub fn handle_action(&mut self, gui_action: Event) {
         self.action_sender.send(gui_action).unwrap();
     }
 
@@ -181,7 +181,7 @@ impl RootView {
     }
 
     // for user input routing
-    pub fn set_active_view(&mut self, view: usize) -> Option<GuiAction>{
+    pub fn set_active_view(&mut self, view: usize) -> Option<Event>{
         if self.views.len() <= view {
             panic!("Cannot activate a view which does not exist");
         }
@@ -267,36 +267,36 @@ impl View {
     pub fn add_static_object(&mut self, object: Box<dyn Gui + Send>) {
         self.objects.push(object);
     }
-    pub fn escape(&mut self) -> Option<GuiAction>{
+    pub fn escape(&mut self) -> Option<Event>{
         None
     }
 
 
 
-    pub fn nav(&mut self, ba: &ButtonAction) -> Option<GuiAction> {
+    pub fn nav(&mut self, ba: &HIDEvent) -> Option<Event> {
         match ba.code {
             2 => {
                     match ba.action { 
-                        Action::Pressed => self.h_move(-1),
+                        IOState::Pressed => self.h_move(-1),
                         _ => ()
                     }
                 },
             3 => {
                     match ba.action { 
-                        Action::Pressed => self.h_move(1),
+                        IOState::Pressed => self.h_move(1),
                         _ => ()
                     }
 
                 }, 
             4 => {
                     match ba.action { 
-                        Action::Pressed => self.v_move(-1),
+                        IOState::Pressed => self.v_move(-1),
                         _ => ()
                     }
                 },
             5 => {
                     match ba.action { 
-                        Action::Pressed => self.v_move(1),
+                        IOState::Pressed => self.v_move(1),
                         _ => ()
 
                     }
@@ -454,7 +454,7 @@ impl View {
         }
     }
     
-    pub fn send_to_selected(&mut self, ba: &ButtonAction) -> Option<GuiAction>{
+    pub fn send_to_selected(&mut self, ba: &HIDEvent) -> Option<Event>{
         let (return_control, mutation, gui_action) = self.objects[self.selected_object].handle_button_action(ba);
         match mutation {
             Some(mutate) => self.mutation_sender.send(Mutation::new(mutate, self.name.clone(), self.selected_object as isize  )).unwrap(),
@@ -521,7 +521,7 @@ impl View {
         true
     }
 
-    fn handle_button_action(&mut self, ba: &ButtonAction) -> Option<GuiAction> {
+    fn handle_button_action(&mut self, ba: &HIDEvent) -> Option<Event> {
         // nav mode or manipulate mode?
         match self.input_mode {
             InputMode::Navigate => {

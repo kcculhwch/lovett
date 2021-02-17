@@ -4,7 +4,7 @@ use super::*;
 // box with text + all GuiStates
 pub struct TextBlock {
     pub text: String,
-    pub action: GuiAction,
+    pub action: Event,
     pub name: String,
     pub regular_name: String,
     pub selected_name: String,
@@ -20,7 +20,7 @@ pub struct TextBlock {
 
 #[allow(dead_code)]
 impl TextBlock {
-    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, action: GuiAction) -> TextBlock {
+    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, action: Event) -> TextBlock {
         let uuid_string = Uuid::new_v4().to_hyphenated().to_string();
         let name = format!("TextBlock - {}", uuid_string); 
 
@@ -160,14 +160,14 @@ impl Gui for TextBlock {
         self.gui_state.clone()
     }
 
-    fn handle_button_action(&mut self, ba: &ButtonAction) -> (bool, Option<&'static str>, Option<GuiAction>) {
+    fn handle_button_action(&mut self, ba: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>) {
         match ba.code {
             6 => {
                 match ba.action {
-                    JAction::Pressed => {
+                    IOState::Pressed => {
                             (false, Some("[Clicked TextBlock]"), Some(self.action.clone()))
                         },
-                    JAction::Released => {
+                    IOState::Released => {
                             (true, Some("[Released TextBlock]"), None)
                         },
                     _ => (false, None, None)

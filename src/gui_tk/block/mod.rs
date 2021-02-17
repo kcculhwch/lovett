@@ -3,7 +3,7 @@ use log::*;
 //Base Gui Impl
 // box with text + all GuiStates
 pub struct Block {
-    pub action: GuiAction,
+    pub action: Event,
     pub name: String,
     pub regular_name: String,
     pub selected_name: String,
@@ -19,7 +19,7 @@ pub struct Block {
 
 #[allow(dead_code)]
 impl Block {
-    pub fn new(x: i32, y: i32, w: i32, h: i32, action: GuiAction) -> Block {
+    pub fn new(x: i32, y: i32, w: i32, h: i32, action: Event) -> Block {
         let uuid_string = Uuid::new_v4().to_hyphenated().to_string();
         let name = format!("Block - {}", uuid_string); 
 
@@ -131,15 +131,15 @@ impl Gui for Block {
         self.gui_state.clone()
     }
 
-    fn handle_button_action(&mut self, ba: &ButtonAction) -> (bool, Option<&'static str>, Option<GuiAction>) {
+    fn handle_button_action(&mut self, ba: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>) {
         match ba.code {
             // handle hat press
             6 => {
                 match ba.action {
-                    JAction::Pressed => {
+                    IOState::Pressed => {
                             (false, Some("[Clicked Block]"), Some(self.action.clone()))
                         },
-                    JAction::Released => {
+                    IOState::Released => {
                             (true, Some("[Released Block]"), None)
                         },
                     _ => (false, None, None)

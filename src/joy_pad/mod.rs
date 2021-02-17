@@ -47,23 +47,23 @@ impl Button {
     }
 }
 #[derive(Debug)]
-pub struct ButtonAction {
-    pub action: Action,
+pub struct HIDEvent {
+    pub action: IOState,
     pub code: u8
 }
 #[derive(Debug)]
-pub enum Action {
+pub enum IOState {
     Pressed,
     Released,
     Repeated
 }
 pub struct Pad {
     buttons: Vec<Button>,
-    pub button_sender: Sender<Vec<ButtonAction>>
+    pub button_sender: Sender<Vec<HIDEvent>>
 }
 
 impl Pad {
-  pub fn new( pins: &Vec<ButtonInitializer>, button_sender: Sender<Vec<ButtonAction>>) -> Result<Pad, Box<dyn Error>> {
+  pub fn new( pins: &Vec<ButtonInitializer>, button_sender: Sender<Vec<HIDEvent>>) -> Result<Pad, Box<dyn Error>> {
       let mut buttons : Vec<Button> = Vec::with_capacity(pins.len());
 
       let gpio = Gpio::new()?;
@@ -78,15 +78,15 @@ impl Pad {
      Ok(pad)
   }
 
-  pub fn detect_changes(&mut self) -> Vec<ButtonAction> {
-      let mut button_actions: Vec<ButtonAction> = Vec::with_capacity(self.buttons.len());
+  pub fn detect_changes(&mut self) -> Vec<HIDEvent> {
+      let mut button_actions: Vec<HIDEvent> = Vec::with_capacity(self.buttons.len());
 
       for mut button in &mut self.buttons {
-        let action : Option<Action> =  Pad::detect_button_changes(&mut button);
+        let action : Option<IOState> =  Pad::detect_button_changes(&mut button);
         match action {
             Some(act) => {
                 button_actions.push(
-                    ButtonAction{
+                    HIDEvent{
                         action: act,
                         code: button.code
                     }  
@@ -105,16 +105,16 @@ impl Pad {
       }
   }
 
-  fn detect_button_changes(button: &mut Button) -> Option<Action> {
+  fn detect_button_changes(button: &mut Button) -> Option<IOState> {
       if button.possible_state != button.state {
           if button.pin.read() == button.possible_state {
               button.state = button.possible_state;
               // change state ... reset the repeat counter
               button.repeat = 0;
               if button.state == Level::Low {
-                Some(Action::Pressed)
+                Some(IOState::Pressed)
               } else {
-                Some(Action::Released)
+                Some(IOState::Released)
               }
           } else {
               button.possible_state = button.state;
@@ -125,7 +125,7 @@ impl Pad {
             button.repeat += 1;
             if button.repeat > 20 && button.repeat % 5 == 0 {
                 button.repeat -= 5;
-                Some(Action::Repeated)
+                Some(IOState::Repeated)
             } else {
                 None
             } 
@@ -139,18 +139,18 @@ impl Pad {
 pub mod helpers {
 
     #[allow(dead_code)]
-    pub fn ba_to_console(button_actions: Vec<super::ButtonAction>, button_initializers: &Vec<super::ButtonInitializer>){
+    pub fn ba_to_console(button_actions: Vec<super::HIDEvent>, button_initializers: &Vec<super::ButtonInitializer>){
         for ba in button_actions{
             print_ba(&ba.action, ba.code, code_to_key(ba.code, button_initializers));
         }
     }
 
     #[allow(dead_code)]
-    fn print_ba<T>(action: &super::Action, code: u8, key: T) where T: std::fmt::Display {
+    fn print_ba<T>(action: &super::IOState, code: u8, key: T) where T: std::fmt::Display {
         match action {
-            super::Action::Pressed => println!("{} was pressed code: {}", key, code),
-            super::Action::Released => println!("{} was released: code {}", key, code),
-            super::Action::Repeated =>  println!("{} was repeated: code {}", key, code), 
+            super::IOState::Pressed => println!("{} was pressed code: {}", key, code),
+            super::IOState::Released => println!("{} was released: code {}", key, code),
+            super::IOState::Repeated =>  println!("{} was repeated: code {}", key, code), 
         }
     }
 
