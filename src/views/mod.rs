@@ -2,7 +2,7 @@ use super::canvas::Canvas;
 use super::gui_tk::{Gui,  Event, GuiState, Palette};
 use super::state::{Mutation};
 use std::sync::mpsc::{Sender, Receiver};
-use super::joy_pad::{HIDEvent, IOState};
+use super::hid::{HIDEvent, IOState};
 
 
 use std::thread;

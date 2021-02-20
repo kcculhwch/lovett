@@ -8,7 +8,7 @@ use std::thread;
 use std::time::{Duration};
 use std::thread::JoinHandle;
 
-pub fn run_pad(mut pad: Pad) -> JoinHandle<()>{
+pub fn run_button_pad(mut pad: ButtonPad) -> JoinHandle<()>{
     thread::spawn(move || {
         loop {
             let button_actions = pad.detect_changes();
@@ -57,13 +57,13 @@ pub enum IOState {
     Released,
     Repeated
 }
-pub struct Pad {
+pub struct ButtonPad {
     buttons: Vec<Button>,
     pub button_sender: Sender<Vec<HIDEvent>>
 }
 
-impl Pad {
-  pub fn new( pins: &Vec<ButtonInitializer>, button_sender: Sender<Vec<HIDEvent>>) -> Result<Pad, Box<dyn Error>> {
+impl ButtonPad {
+  pub fn new( pins: &Vec<ButtonInitializer>, button_sender: Sender<Vec<HIDEvent>>) -> Result<ButtonPad, Box<dyn Error>> {
       let mut buttons : Vec<Button> = Vec::with_capacity(pins.len());
 
       let gpio = Gpio::new()?;
@@ -71,7 +71,7 @@ impl Pad {
         let button = Button::new(gpio.get(pin.pin)?.into_input(), pin.code);
         buttons.push(button);
       }
-      let pad: Pad = Pad {
+      let pad: ButtonPad = ButtonPad {
         buttons: buttons,
         button_sender
       };
@@ -82,7 +82,7 @@ impl Pad {
       let mut button_actions: Vec<HIDEvent> = Vec::with_capacity(self.buttons.len());
 
       for mut button in &mut self.buttons {
-        let action : Option<IOState> =  Pad::detect_button_changes(&mut button);
+        let action : Option<IOState> =  ButtonPad::detect_button_changes(&mut button);
         match action {
             Some(act) => {
                 button_actions.push(

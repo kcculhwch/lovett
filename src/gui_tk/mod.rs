@@ -5,8 +5,8 @@ use uuid::Uuid;
 use super::canvas::{Rect, Layer, Draw, Canvas, Text};
 use super::fb::Color;
 
-use super::joy_pad::HIDEvent; 
-use super::joy_pad::IOState;
+use super::hid::HIDEvent; 
+use super::hid::IOState;
 
 mod button;
 #[allow(unused_imports)]
