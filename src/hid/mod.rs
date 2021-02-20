@@ -11,8 +11,8 @@ use std::thread::JoinHandle;
 pub fn run_button_pad(mut pad: ButtonPad) -> JoinHandle<()>{
     thread::spawn(move || {
         loop {
-            let button_actions = pad.detect_changes();
-            pad.button_sender.send(button_actions).unwrap();
+            let hid_events = pad.detect_changes();
+            pad.button_sender.send(hid_events).unwrap();
             thread::sleep(Duration::from_millis(20));
         }
     })
@@ -48,7 +48,7 @@ impl Button {
 }
 #[derive(Debug)]
 pub struct HIDEvent {
-    pub action: IOState,
+    pub io_state: IOState,
     pub code: u8
 }
 #[derive(Debug)]
@@ -79,15 +79,15 @@ impl ButtonPad {
   }
 
   pub fn detect_changes(&mut self) -> Vec<HIDEvent> {
-      let mut button_actions: Vec<HIDEvent> = Vec::with_capacity(self.buttons.len());
+      let mut hid_events: Vec<HIDEvent> = Vec::with_capacity(self.buttons.len());
 
       for mut button in &mut self.buttons {
-        let action : Option<IOState> =  ButtonPad::detect_button_changes(&mut button);
-        match action {
-            Some(act) => {
-                button_actions.push(
+        let option_io_state : Option<IOState> =  ButtonPad::detect_button_changes(&mut button);
+        match option_io_state {
+            Some(io_state) => {
+                hid_events.push(
                     HIDEvent{
-                        action: act,
+                        io_state: io_state,
                         code: button.code
                     }  
                 );
@@ -96,7 +96,7 @@ impl ButtonPad {
         }          
       }
       self.detect_possible_changes();
-      button_actions
+      hid_events
   }
 
   fn detect_possible_changes(&mut self) {
@@ -139,15 +139,15 @@ impl ButtonPad {
 pub mod helpers {
 
     #[allow(dead_code)]
-    pub fn ba_to_console(button_actions: Vec<super::HIDEvent>, button_initializers: &Vec<super::ButtonInitializer>){
-        for ba in button_actions{
-            print_ba(&ba.action, ba.code, code_to_key(ba.code, button_initializers));
+    pub fn ba_to_console(hid_events: Vec<super::HIDEvent>, button_initializers: &Vec<super::ButtonInitializer>){
+        for h_e in hid_events{
+            print_h_e(&h_e.io_state, h_e.code, code_to_key(h_e.code, button_initializers));
         }
     }
 
     #[allow(dead_code)]
-    fn print_ba<T>(action: &super::IOState, code: u8, key: T) where T: std::fmt::Display {
-        match action {
+    fn print_h_e<T>(io_state: &super::IOState, code: u8, key: T) where T: std::fmt::Display {
+        match io_state {
             super::IOState::Pressed => println!("{} was pressed code: {}", key, code),
             super::IOState::Released => println!("{} was released: code {}", key, code),
             super::IOState::Repeated =>  println!("{} was repeated: code {}", key, code), 

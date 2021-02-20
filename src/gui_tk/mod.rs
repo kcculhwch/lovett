@@ -108,7 +108,7 @@ pub trait Gui {
     }
 
     #[allow(unused_variables)]
-    fn handle_button_action(&mut self, ba: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>)  {
+    fn handle_hid_event(&mut self, ba: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>)  {
         (true, None, None)
     }
 
@@ -117,21 +117,21 @@ pub trait Gui {
 #[allow(dead_code)]
 pub struct Menu {
     pub items: Vec<MenuItem>,
-    pub action: Event,
+    pub event: Event,
     pub name: &'static str
 }
 
 #[allow(dead_code)]
 pub struct MenuItem {
     pub text: &'static str,
-    pub action: Event,
+    pub event: Event,
     pub name: &'static str
 }
 
 #[allow(dead_code)]
 pub struct GuiImage {
     pub path: &'static str,
-    pub action: Event,
+    pub event: Event,
     pub name: &'static str
 }
 

@@ -4,7 +4,7 @@ use super::*;
 // box with text + all GuiStates
 pub struct Button {
     pub text: String,
-    pub action: Event,
+    pub event: Event,
     pub name: String,
     pub regular_name: String,
     pub selected_name: String,
@@ -20,7 +20,7 @@ pub struct Button {
 
 #[allow(dead_code)]
 impl Button {
-    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, action: Event) -> Button {
+    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, event: Event) -> Button {
         let uuid_string = Uuid::new_v4().to_hyphenated().to_string();
         let name = format!("Button - {}", uuid_string); 
 
@@ -34,7 +34,7 @@ impl Button {
         let layers: Vec<Layer<Box<dyn Draw + Send>>> = vec![];
         let mut button = Button {
             text,
-            action,
+            event,
             name,
             regular_name,
             clicked_name,
@@ -171,12 +171,12 @@ impl Gui for Button {
         self.gui_state.clone()
     }
 
-    fn handle_button_action(&mut self, ba: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>) {
-        match ba.code {
+    fn handle_hid_event(&mut self, h_e: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>) {
+        match h_e.code {
             6 => {
-                match ba.action {
+                match h_e.io_state {
                     IOState::Pressed => {
-                            (false, Some("[Clicked Button]"), Some(self.action.clone()))
+                            (false, Some("[Clicked Button]"), Some(self.event.clone()))
                         },
                     IOState::Released => {
                             (true, Some("[Released Button]"), None)

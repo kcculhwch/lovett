@@ -3,7 +3,7 @@ use log::*;
 //Base Gui Impl
 // box with text + all GuiStates
 pub struct Block {
-    pub action: Event,
+    pub event: Event,
     pub name: String,
     pub regular_name: String,
     pub selected_name: String,
@@ -19,7 +19,7 @@ pub struct Block {
 
 #[allow(dead_code)]
 impl Block {
-    pub fn new(x: i32, y: i32, w: i32, h: i32, action: Event) -> Block {
+    pub fn new(x: i32, y: i32, w: i32, h: i32, event: Event) -> Block {
         let uuid_string = Uuid::new_v4().to_hyphenated().to_string();
         let name = format!("Block - {}", uuid_string); 
 
@@ -32,7 +32,7 @@ impl Block {
 
         let layers: Vec<Layer<Box<dyn Draw + Send>>> = vec![];
         let mut block = Block {
-            action,
+            event,
             name,
             regular_name,
             clicked_name,
@@ -131,13 +131,13 @@ impl Gui for Block {
         self.gui_state.clone()
     }
 
-    fn handle_button_action(&mut self, ba: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>) {
-        match ba.code {
+    fn handle_hid_event(&mut self, h_e: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>) {
+        match h_e.code {
             // handle hat press
             6 => {
-                match ba.action {
+                match h_e.io_state {
                     IOState::Pressed => {
-                            (false, Some("[Clicked Block]"), Some(self.action.clone()))
+                            (false, Some("[Clicked Block]"), Some(self.event.clone()))
                         },
                     IOState::Released => {
                             (true, Some("[Released Block]"), None)

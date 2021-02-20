@@ -33,12 +33,12 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
     thread::spawn(move || {
         loop {
             match root_view.input_receiver.try_recv() {
-                Ok(button_actions) => {
-                    for ba in &button_actions {
-                        debug!("HIDEvent: {:#?}", ba);
-                        match root_view.handle_button_action(ba) {
-                            Some(action) => {
-                                root_view.handle_action(action);                
+                Ok(hid_events) => {
+                    for h_e in &hid_events {
+                        debug!("HIDEvent: {:#?}", h_e);
+                        match root_view.handle_hid_event(h_e) {
+                            Some(event) => {
+                                root_view.handle_event(event);                
                             },
                             None => ()
                         }
@@ -105,11 +105,11 @@ pub struct RootView {
     active: usize,
     canvas: Canvas,
     input_receiver: Receiver<Vec<HIDEvent>>,
-    action_sender: Sender<Event>
+    event_sender: Sender<Event>
 }
 
 impl RootView {
-    pub fn new(fbdev: &'static str,  input_receiver: Receiver<Vec<HIDEvent>>, action_sender: Sender<Event>, info_bar_view: View) -> RootView {
+    pub fn new(fbdev: &'static str,  input_receiver: Receiver<Vec<HIDEvent>>, event_sender: Sender<Event>, info_bar_view: View) -> RootView {
         let canvas: Canvas = Canvas::new(fbdev);
         RootView {
             bar: info_bar_view,
@@ -117,7 +117,7 @@ impl RootView {
             canvas: canvas,
             active: 0,
             input_receiver,
-            action_sender
+            event_sender
         }
     }
     pub fn initialize(&mut self) {
@@ -128,19 +128,19 @@ impl RootView {
     }
 
     // input button handling
-    pub fn handle_button_action(&mut self, ba: &HIDEvent) -> Option<Event>{
+    pub fn handle_hid_event(&mut self, h_e: &HIDEvent) -> Option<Event>{
         if self.views.len() > self.active {
-            match ba.code {
+            match h_e.code {
                 0 => self.set_active_view(0), // go home
-                _ => self.views[self.active].handle_button_action(ba)
+                _ => self.views[self.active].handle_hid_event(h_e)
             }
         } else {
             panic!("Cannot route input to non existent active view");
         }
     }
 
-    pub fn handle_action(&mut self, gui_action: Event) {
-        self.action_sender.send(gui_action).unwrap();
+    pub fn handle_event(&mut self, event: Event) {
+        self.event_sender.send(event).unwrap();
     }
 
 
@@ -273,29 +273,29 @@ impl View {
 
 
 
-    pub fn nav(&mut self, ba: &HIDEvent) -> Option<Event> {
-        match ba.code {
+    pub fn nav(&mut self, h_e: &HIDEvent) -> Option<Event> {
+        match h_e.code {
             2 => {
-                    match ba.action { 
+                    match h_e.io_state { 
                         IOState::Pressed => self.h_move(-1),
                         _ => ()
                     }
                 },
             3 => {
-                    match ba.action { 
+                    match h_e.io_state { 
                         IOState::Pressed => self.h_move(1),
                         _ => ()
                     }
 
                 }, 
             4 => {
-                    match ba.action { 
+                    match h_e.io_state { 
                         IOState::Pressed => self.v_move(-1),
                         _ => ()
                     }
                 },
             5 => {
-                    match ba.action { 
+                    match h_e.io_state { 
                         IOState::Pressed => self.v_move(1),
                         _ => ()
 
@@ -454,8 +454,8 @@ impl View {
         }
     }
     
-    pub fn send_to_selected(&mut self, ba: &HIDEvent) -> Option<Event>{
-        let (return_control, mutation, gui_action) = self.objects[self.selected_object].handle_button_action(ba);
+    pub fn send_to_selected(&mut self, h_e: &HIDEvent) -> Option<Event>{
+        let (return_control, mutation, event) = self.objects[self.selected_object].handle_hid_event(h_e);
         match mutation {
             Some(mutate) => self.mutation_sender.send(Mutation::new(mutate, self.name.clone(), self.selected_object as isize  )).unwrap(),
             None => ()
@@ -466,7 +466,7 @@ impl View {
         } else {
             self.input_mode = InputMode::Manipulate;
         }
-        gui_action
+        event
     }
 
     fn initialize(&mut self, canvas: &mut Canvas) -> bool {
@@ -521,19 +521,19 @@ impl View {
         true
     }
 
-    fn handle_button_action(&mut self, ba: &HIDEvent) -> Option<Event> {
+    fn handle_hid_event(&mut self, h_e: &HIDEvent) -> Option<Event> {
         // nav mode or manipulate mode?
         match self.input_mode {
             InputMode::Navigate => {
-                match ba.code {
+                match h_e.code {
                     0 => None, // go home -- should be handled by root
                     1 => self.escape(),
-                    6 => self.send_to_selected(ba),
-                    _ => self.nav(ba)
+                    6 => self.send_to_selected(h_e),
+                    _ => self.nav(h_e)
                 }
             }, // up / down / right / left will move the selection from widget to widget -- b = home, a = back == home
             InputMode::Manipulate => {
-                self.send_to_selected(ba)
+                self.send_to_selected(h_e)
             } // the element will parse the the input mode for the input bus. -- b = home, a = back == navigate mode
         }
     }

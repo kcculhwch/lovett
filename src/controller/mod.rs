@@ -9,11 +9,11 @@ use std::time::{Duration};
 pub fn run_controller(mut root_controller: RootController) -> JoinHandle<()>{
     thread::spawn(move || {
         loop {                
-            let gui_action: Event = match root_controller.action_receiver.try_recv() {
-                Ok(action) => action,
+            let event: Event = match root_controller.event_receiver.try_recv() {
+                Ok(event) => event,
                 Err(_) => Event::new("", None)
             };
-            root_controller.handle_action(&gui_action);
+            root_controller.handle_event(&event);
             thread::sleep(Duration::from_millis(5));
         }
     })
@@ -24,8 +24,8 @@ pub fn run_controller(mut root_controller: RootController) -> JoinHandle<()>{
 #[allow(dead_code)]
 pub struct RootController {
     controllers: HashMap<&'static str, Controller>,
-    pub action_receiver: Receiver<Event>,
-    action_sender: Sender<Event>
+    pub event_receiver: Receiver<Event>,
+    event_sender: Sender<Event>
 }
 
 impl RootController {
@@ -34,18 +34,18 @@ impl RootController {
         let controllers: HashMap<&'static str, Controller> = HashMap::new();
         RootController {
             controllers,
-            action_sender: sender,
-            action_receiver: receiver
+            event_sender: sender,
+            event_receiver: receiver
         }
     }
 
-    pub fn handle_action(&mut self, action: &Event) {
-        match action.name {
+    pub fn handle_event(&mut self, event: &Event) {
+        match event.name {
             _ => ()
         }
     }
-    pub fn get_action_sender(&self) -> Sender<Event> {
-        self.action_sender.clone()
+    pub fn get_event_sender(&self) -> Sender<Event> {
+        self.event_sender.clone()
     }
 
 }
