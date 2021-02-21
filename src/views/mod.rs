@@ -579,7 +579,7 @@ impl View {
                     false
                 }
             },
-            _ => false
+            _ => true
         };
         self.gui_state[self.selected_object] = GuiState::Selected;
         if changed {
