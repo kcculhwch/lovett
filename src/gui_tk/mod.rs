@@ -108,7 +108,7 @@ pub trait Gui {
     }
 
     #[allow(unused_variables)]
-    fn handle_hid_event(&mut self, ba: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>)  {
+    fn handle_hid_event(&mut self, ba: &HIDEvent) -> (bool, Option<GuiState>, Option<Event>)  {
         (true, None, None)
     }
 

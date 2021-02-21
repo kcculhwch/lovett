@@ -1,6 +1,6 @@
 use super::canvas::Canvas;
 use super::gui_tk::{Gui,  Event, GuiState, Palette};
-use super::state::{Mutation};
+use super::state::{eq_gui_state};
 use std::sync::mpsc::{Sender, Receiver};
 use super::hid::{HIDEvent, IOState};
 
@@ -47,16 +47,12 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
                 },
                 Err(_) => ()
             }
-
-            //match root_view.state_receiver.try_recv() {
-            //    Ok(state) => {
-                    if root_view.update_bar() || root_view.update_active_view() {
-                        root_view.render();
-                    }
-             //       debug!("Root View Received State Update");
-             //   },
-             //   Err(_) => ()
-            //};
+            if root_view.update_bar() 
+                || root_view.update_active_view() 
+                || root_view.bar_stale() 
+                || root_view.view_stale() {
+                    root_view.render();
+            }
             thread::sleep(Duration::from_millis(5));
         }
     })
@@ -195,6 +191,14 @@ impl RootView {
         }
         None
     }
+
+    pub fn bar_stale(&self) -> bool {
+        self.bar.stale
+    }
+
+    pub fn view_stale(&self) -> bool {
+        self.views[self.active].stale
+    }
 }
 
 //abstract trait to impl the view Trait while keeping it dry
@@ -209,15 +213,15 @@ pub struct View {
     selected_column: usize,
     selected_object: usize,
     state_receiver: Receiver<Vec<u8>>,
-    mutation_sender: Sender<Mutation>,
-    name: String,
-    update_fn: ViewStateUpdater
+    update_fn: ViewStateUpdater,
+    gui_state: Vec<GuiState>,
+    stale: bool
 }
   
 pub type ViewStateUpdater = fn(&mut  Vec<Box<dyn Gui + Send>>, &[u8], &mut Canvas );
 
 impl View {
-    pub fn new(mutation_sender: Sender<Mutation>, name: String, update_fn: ViewStateUpdater, state_receiver: Receiver<Vec<u8>>) -> View {
+    pub fn new(update_fn: ViewStateUpdater, state_receiver: Receiver<Vec<u8>>) -> View {
         let objects: Vec<Box<dyn Gui + Send>> = vec![];
         let nav_index: Vec<Vec<Vec<usize>>> = vec![
                                                       vec![
@@ -243,10 +247,10 @@ impl View {
             selected_row,
             selected_column,
             selected_object,
-            mutation_sender,
             state_receiver,
-            name,
-            update_fn
+            update_fn,
+            gui_state: vec![],
+            stale: true
         }
     }
 
@@ -394,7 +398,8 @@ impl View {
             }
             // if change send mutator
             if original_selected_object != self.selected_object {
-                self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+//                self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+                self.move_selection();
             }
             
         } // attempted row is out of bounds .. stay where we are
@@ -450,15 +455,16 @@ impl View {
             self.h_cell_move(1);
         }
         if original_selected_object != self.selected_object {
-            self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+//            self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+            self.move_selection();
         }
     }
     
     pub fn send_to_selected(&mut self, h_e: &HIDEvent) -> Option<Event>{
-        let (return_control, mutation, event) = self.objects[self.selected_object].handle_hid_event(h_e);
-        match mutation {
-            Some(mutate) => self.mutation_sender.send(Mutation::new(mutate, self.name.clone(), self.selected_object as isize  )).unwrap(),
-            None => ()
+        let (return_control, o_gui_state, event) = self.objects[self.selected_object].handle_hid_event(h_e);
+        match o_gui_state {
+            Some(gui_state) => self.set_gui_state(gui_state), 
+            None => false
         };
 
         if return_control {
@@ -490,7 +496,8 @@ impl View {
             // find what cell that object is in
             self.selected_column = 0;
             self.selected_row = 0;
-            self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+//            self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+            self.move_selection();
         }
         true
        // all objects 
@@ -541,4 +548,35 @@ impl View {
         self.objects.len()
     } 
 
+
+    // mutate gui_state
+
+    fn move_selection(&mut self) -> bool {
+        let current = self.gui_state.iter().position(|x| match x { 
+            GuiState::Selected => true,
+            _ => false
+        });
+        let changed = match current {
+            Some(position) => {
+                self.gui_state[position] = GuiState::Base;
+                if position != self.selected_object as usize {
+                    true
+                } else {
+                    false
+                }
+            },
+            _ => false
+        };
+        self.gui_state[self.selected_object] = GuiState::Selected;
+        changed
+    }
+
+    fn set_gui_state(&mut self, gui_state: GuiState) -> bool{
+        if eq_gui_state(&self.gui_state[self.selected_object],& gui_state) {
+            false
+        } else {
+            self.gui_state[self.selected_object] = gui_state;
+            true
+        }
+    }
 }

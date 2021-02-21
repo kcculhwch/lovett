@@ -171,15 +171,15 @@ impl Gui for Button {
         self.gui_state.clone()
     }
 
-    fn handle_hid_event(&mut self, h_e: &HIDEvent) -> (bool, Option<&'static str>, Option<Event>) {
+    fn handle_hid_event(&mut self, h_e: &HIDEvent) -> (bool, Option<GuiState>, Option<Event>) {
         match h_e.code {
             6 => {
                 match h_e.io_state {
                     IOState::Pressed => {
-                            (false, Some("[Clicked Button]"), Some(self.event.clone()))
+                            (false, Some(GuiState::Clicked), Some(self.event.clone()))
                         },
                     IOState::Released => {
-                            (true, Some("[Released Button]"), None)
+                            (true, Some(GuiState::Base), None)
                         },
                     _ => (false, None, None)
                 }
