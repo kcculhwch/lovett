@@ -253,8 +253,9 @@ impl View {
     // add a navigable object to the view
     pub fn add_object(&mut self, object: Box<dyn Gui + Send>, row: usize, column: usize ) {
         let object_index = self.objects.len(); //
+
+        self.gui_state.push(object.get_gui_state());
         self.objects.push(object);
-        self.gui_state.push(GuiState::Base);
         if self.nav_index.len() > row && self.nav_index[row].len() > column {
             self.nav_index[row][column].push(object_index);
         } else {
@@ -266,8 +267,9 @@ impl View {
     // add a static - non navigable object to the view
     #[allow(dead_code)]
     pub fn add_static_object(&mut self, object: Box<dyn Gui + Send>) {
+
+        self.gui_state.push(object.get_gui_state());
         self.objects.push(object);
-        self.gui_state.push(GuiState::Base);
     }
     pub fn escape(&mut self) -> Option<Event>{
         None
