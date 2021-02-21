@@ -502,10 +502,13 @@ impl View {
     }
     fn update(&mut self, canvas: &mut Canvas) -> bool {
         // if the view's gui is not yet in sync
+        let mut gui_state_update = false;
         if self.stale {
             for i in 0..self.objects.len() {
                 gui_state_updater(&mut self.objects[i], self.gui_state[i].clone(), canvas);
             }
+            gui_state_updated = true;
+            self.stale = false;
         }
 
         // update each object in the view with the correct state data
@@ -521,7 +524,7 @@ impl View {
                 false
             }
         };
-        updated
+        updated || gui_state_updated
     }
     
     fn deactivate(&mut self, canvas: &mut Canvas) -> bool {
