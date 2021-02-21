@@ -552,6 +552,9 @@ impl View {
     // mutate gui_state
 
     fn move_selection(&mut self) -> bool {
+        if self.gui_state.len() == 0 {
+            return false
+        }
         let current = self.gui_state.iter().position(|x| match x { 
             GuiState::Selected => true,
             _ => false
@@ -572,6 +575,10 @@ impl View {
     }
 
     fn set_gui_state(&mut self, gui_state: GuiState) -> bool{
+        if self.gui_state.len() == 0 {
+            return false
+        }
+
         if eq_gui_state(&self.gui_state[self.selected_object],& gui_state) {
             false
         } else {
