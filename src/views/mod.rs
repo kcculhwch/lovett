@@ -48,9 +48,7 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
                 Err(_) => ()
             }
             if root_view.update_bar() 
-                || root_view.update_active_view() 
-                || root_view.bar_stale() 
-                || root_view.view_stale() {
+                || root_view.update_active_view() {
                     root_view.render();
             }
             thread::sleep(Duration::from_millis(5));
@@ -84,8 +82,6 @@ pub fn gui_state_updater(object: &mut Box<dyn Gui + Send>, new_state: GuiState, 
             }
         }
     }
-
-
 }
 
 #[derive(Clone)]
@@ -504,6 +500,13 @@ impl View {
        // all objects 
     }
     fn update(&mut self, canvas: &mut Canvas) -> bool {
+        // if the view's gui is not yet in sync
+        if self.stale {
+            for i in 0..self.objects.len() {
+                gui_state_updater(&mut self.objects[i], self.gui_state[i].clone(), canvas);
+            }
+        }
+
         // update each object in the view with the correct state data
         // each view will likely have its own linkage to state data
         // so we let the author of the view provide their own updater_fn
@@ -554,6 +557,7 @@ impl View {
 
     fn move_selection(&mut self) -> bool {
         if self.gui_state.len() == 0 {
+            debug!("Attempt to move selection when no available objects");       
             return false
         }
         let current = self.gui_state.iter().position(|x| match x { 
@@ -577,6 +581,7 @@ impl View {
 
     fn set_gui_state(&mut self, gui_state: GuiState) -> bool{
         if self.gui_state.len() == 0 {
+            debug!("Attempt to set gui_state when no available objects");
             return false
         }
 
