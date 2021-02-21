@@ -258,6 +258,7 @@ impl View {
     pub fn add_object(&mut self, object: Box<dyn Gui + Send>, row: usize, column: usize ) {
         let object_index = self.objects.len(); //
         self.objects.push(object);
+        self.gui_state.push(GuiState::Base);
         if self.nav_index.len() > row && self.nav_index[row].len() > column {
             self.nav_index[row][column].push(object_index);
         } else {
