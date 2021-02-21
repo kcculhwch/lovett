@@ -246,7 +246,7 @@ impl View {
             state_receiver,
             update_fn,
             gui_state: vec![],
-            stale: true
+            stale: false
         }
     }
 
@@ -267,6 +267,7 @@ impl View {
     #[allow(dead_code)]
     pub fn add_static_object(&mut self, object: Box<dyn Gui + Send>) {
         self.objects.push(object);
+        self.gui_state.push(GuiState::Base);
     }
     pub fn escape(&mut self) -> Option<Event>{
         None
