@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["lovett"] = [{"text":"impl <a class=\"trait\" href=\"https://docs.rs/serde/1.0.116/serde/ser/trait.Serialize.html\" title=\"trait serde::ser::Serialize\">Serialize</a> for <a class=\"enum\" href=\"lovett/gui_tk/enum.GuiState.html\" title=\"enum lovett::gui_tk::GuiState\">GuiState</a>","synthetic":false,"types":["lovett::gui_tk::GuiState"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
