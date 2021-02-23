@@ -267,7 +267,6 @@ impl View {
     // add a static - non navigable object to the view
     #[allow(dead_code)]
     pub fn add_static_object(&mut self, object: Box<dyn Gui + Send>) {
-
         self.gui_state.push(object.get_gui_state());
         self.objects.push(object);
     }
@@ -496,7 +495,6 @@ impl View {
             // find what cell that object is in
             self.selected_column = 0;
             self.selected_row = 0;
-//            self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
             self.move_selection();
         }
         true

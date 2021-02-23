@@ -7,7 +7,8 @@
 //! At its core there is a View, State, Event Bus architecture
 //!
 //! [`RootView`] Holds a collection of [`View`] objects which
-//! can render on to the RootvView's [`Canvas`] and filled with GUI elements.
+//! can render on to the RootvView's [`Canvas`] and paint [`gui_tk`] elements.
+//! Furthermore, the RootView receives input from an hid_event sender, [`hid`]
 //! Each view can recieve updated copies of a State tree contained by
 //! the [`RootState`] object.
 //! Events from the HID layer trigger Events on GUI elements.
@@ -18,7 +19,8 @@
 //! [`RootView`]: ./views/struct.RootView.html
 //! [`Canvas`]: ./canvas/struct.Canvas.html
 //! [`View`]: ./views/struct.View.html
-//! 
+//! [`hid`]: ./hid/index.html
+//! [`gui_tk`]: ./gui_tk/index.html
 //!
 //!
 //!
@@ -68,7 +70,8 @@
 //!pub struct App {
 //!    pub root_controller: RootController,        // for handling GuiAction inputs on a mspc channel
 //!    pub root_state: RootState,                  // for broadcasting state changes and receiving mutator requests
-//!    pub root_view: RootView,                    // receives state updates, handles gui / input_pad interactions ... send GuiActions to the Controller
+//!    pub root_view: RootView,                    // receives state updates, handles gui and hid interactions 
+//!                                                // and ... send Events/ to the Controller
 //!}
 //!```
 //!
@@ -92,9 +95,12 @@
 //!}
 //!```
 //!
-//!#### Setup an input_pad
+//!#### Setup an hid event sender 
 //!
-//!Create a Vector of ButtonInitializer objects (joy_pad::ButtonInitializer)
+//! currently the only support sender is a ButtonPad
+//! the button pat sends an array of hid_events whenever new data is available
+//!
+//!Create a Vector of ButtonInitializer objects (hid::ButtonInitializer)
 //!
 //!   * pin - the gpio pin number
 //!   * code - the internal code number of the button
@@ -102,7 +108,7 @@
 //!
 //!Create input_rx and input_tx channels
 //!
-//!Create the input_pad object with the Vector and the input channel.
+//!Create the button_pad object with the Vector and the input channel.
 //!
 //!```rust
 //!        // setup hw buttons
@@ -120,11 +126,11 @@
 //!        //create channesl for sending raw input buttons to the root_view
 //!        let (input_tx, input_rx) = mpsc::channel();
 //!
-//!        // setup the input_pad
+//!        // setup the button_pad
 //!        // throw errors if cannot initialize gpio states
-//!        let input_pad =  match Pad::new(&button_initializers, input_tx) {
+//!        let button_pad =  match ButtonPad::new(&button_initializers, input_tx) {
 //!            Ok(pad) => pad,
-//!            Err(x) => panic!("Error Starting Input Pad: {}", x)
+//!            Err(x) => panic!("Error Starting Button Pad: {}", x)
 //!        };
 //!```
 //!
