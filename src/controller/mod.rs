@@ -28,11 +28,11 @@ pub struct RootController {
     pub event_rx: Receiver<Event>,
     event_tx: Sender<Event>,
     mutation_tx: Sender<Mutation>,
-    router: Box<dyn Router + Send>
+    router: Box<dyn Route + Send>
 }
 
 impl RootController {
-    pub fn new(mutation_tx: Sender<Mutation>, router: Box<dyn Router + Send>) -> RootController {
+    pub fn new(mutation_tx: Sender<Mutation>, router: Box<dyn Route + Send>) -> RootController {
         let (sender, receiver) = channel();
         let controllers: HashMap<&'static str, Controller> = HashMap::new();
         RootController {
@@ -75,7 +75,7 @@ pub type Action = fn();
 
 pub trait Model {}
 
-pub trait Router {
+pub trait Route {
     fn handle_event(&self, event: Event) -> bool;
 }
 

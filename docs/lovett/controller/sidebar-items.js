@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["run_controller",""]],"struct":[["Controller",""],["RootController",""]],"trait":[["Model",""],["Router",""]],"type":[["Action",""]]});
+initSidebarItems({"fn":[["run_controller",""]],"struct":[["Controller",""],["RootController",""]],"trait":[["Model",""],["Route",""]],"type":[["Action",""]]});

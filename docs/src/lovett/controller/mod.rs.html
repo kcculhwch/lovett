@@ -136,11 +136,11 @@
     <span class="kw">pub</span> <span class="ident">event_rx</span>: <span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
     <span class="ident">event_tx</span>: <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
     <span class="ident">mutation_tx</span>: <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">Mutation</span><span class="op">&gt;</span>,
-    <span class="ident">router</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Router</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
+    <span class="ident">router</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Route</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>
 }
 
 <span class="kw">impl</span> <span class="ident">RootController</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">mutation_tx</span>: <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">Mutation</span><span class="op">&gt;</span>, <span class="ident">router</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Router</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RootController</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">mutation_tx</span>: <span class="ident">Sender</span><span class="op">&lt;</span><span class="ident">Mutation</span><span class="op">&gt;</span>, <span class="ident">router</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Route</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RootController</span> {
         <span class="kw">let</span> (<span class="ident">sender</span>, <span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">channel</span>();
         <span class="kw">let</span> <span class="ident">controllers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">Controller</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
         <span class="ident">RootController</span> {
@@ -183,7 +183,7 @@
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Model</span> {}
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Router</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Route</span> {
     <span class="kw">fn</span> <span class="ident">handle_event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
 }
 
