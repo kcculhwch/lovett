@@ -253,6 +253,8 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Lovett is a framework for developing simple GUI apps</span>
 <span class="doccomment">//! on Raspberry PI systems.</span>
@@ -260,7 +262,9 @@
 <span class="doccomment">//! Currently it supports limited hardware configurations</span>
 <span class="doccomment">//! but it is intended to be flexible but powerful.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! At its core there is a View, State, Event Bus architecture</span>
+<span class="doccomment">//! At its core there is loosely based on a Redux data store architecture,</span>
+<span class="doccomment">//! where state data is fully centralized in the store, and can only be </span>
+<span class="doccomment">//! reduced by the reducer functions which do not mutate the state.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! [`WindowViewer`] Holds a collection of [`View`] objects which</span>
 <span class="doccomment">//! can render on to the RootvView&#39;s [`Canvas`] and paint [`gui_tk`] elements.</span>
@@ -271,10 +275,10 @@
 <span class="doccomment">//! The State can be changed by signalling the Store with a </span>
 <span class="doccomment">//! Reducer</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! [`Store`]: ./state/struct.Store.html</span>
-<span class="doccomment">//! [`WindowViewer`]: ./views/struct.WindowViewer.html</span>
+<span class="doccomment">//! [`Store`]: ./store/struct.Store.html</span>
+<span class="doccomment">//! [`WindowViewer`]: ./window_viewer/struct.WindowViewer.html</span>
 <span class="doccomment">//! [`Canvas`]: ./canvas/struct.Canvas.html</span>
-<span class="doccomment">//! [`View`]: ./views/struct.View.html</span>
+<span class="doccomment">//! [`View`]: ./window_viewer/struct.View.html</span>
 <span class="doccomment">//! [`hid`]: ./hid/index.html</span>
 <span class="doccomment">//! [`gui_tk`]: ./gui_tk/index.html</span>
 <span class="doccomment">//!</span>

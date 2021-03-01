@@ -4,7 +4,9 @@
 //! Currently it supports limited hardware configurations
 //! but it is intended to be flexible but powerful.
 //!
-//! At its core there is a View, State, Event Bus architecture
+//! At its core there is loosely based on a Redux data store architecture,
+//! where state data is fully centralized in the store, and can only be 
+//! reduced by the reducer functions which do not mutate the state.
 //!
 //! [`WindowViewer`] Holds a collection of [`View`] objects which
 //! can render on to the RootvView's [`Canvas`] and paint [`gui_tk`] elements.
@@ -15,10 +17,10 @@
 //! The State can be changed by signalling the Store with a 
 //! Reducer
 //!
-//! [`Store`]: ./state/struct.Store.html
-//! [`WindowViewer`]: ./views/struct.WindowViewer.html
+//! [`Store`]: ./store/struct.Store.html
+//! [`WindowViewer`]: ./window_viewer/struct.WindowViewer.html
 //! [`Canvas`]: ./canvas/struct.Canvas.html
-//! [`View`]: ./views/struct.View.html
+//! [`View`]: ./window_viewer/struct.View.html
 //! [`hid`]: ./hid/index.html
 //! [`gui_tk`]: ./gui_tk/index.html
 //!
