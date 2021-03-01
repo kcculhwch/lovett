@@ -12,10 +12,10 @@ pub fn run_state(mut root_state:  RootState) -> JoinHandle<()>{
         thread::spawn(move || {
             loop {
 
-                // lisen for mutators
-                match root_state.mutation_receiver.try_recv() {
-                    Ok(mutator) => {
-                        root_state.mutate(mutator);
+                // lisen for reducers
+                match root_state.action_receiver.try_recv() {
+                    Ok(reducer) => {
+                        root_state.mutate(reducer);
                     },
                     Err(_) => ()
                 };
@@ -24,7 +24,7 @@ pub fn run_state(mut root_state:  RootState) -> JoinHandle<()>{
         })
 }
 
-pub type Mutator = fn(&[u8], Mutation) -> Vec<u8>;
+pub type Reducer = fn(&[u8], Action) -> Vec<u8>;
 
 pub type StateSenderFilter = fn(&[u8], &Vec<u8>) -> bool;
 
@@ -37,21 +37,21 @@ pub struct FilteredStateSender {
 pub struct RootState {
     pub state: Vec<u8>,
     pub filtered_state_senders: Vec<FilteredStateSender>,
-    pub mutation_receiver: Receiver<Mutation>,
-    mutation_sender: Sender<Mutation>,   
-    pub mutators: HashMap<&'static str, Mutator>
+    pub action_receiver: Receiver<Action>,
+    action_sender: Sender<Action>,   
+    pub reducers: HashMap<&'static str, Reducer>
 }
 
 impl RootState {
     pub fn new(state: Vec<u8>) -> RootState {
         let (sender, receiver) = channel();
-        let mutators: HashMap<&'static str, Mutator > = HashMap::new();
+        let reducers: HashMap<&'static str, Reducer > = HashMap::new();
         RootState {
-            mutators,
+            reducers,
             state,
             filtered_state_senders: vec![],
-            mutation_receiver: receiver,
-            mutation_sender: sender       
+            action_receiver: receiver,
+            action_sender: sender       
             
         }
     }
@@ -65,18 +65,18 @@ impl RootState {
     }
 
 
-    pub fn get_mutation_sender(&self) -> Sender<Mutation> {
-        self.mutation_sender.clone()
+    pub fn get_action_sender(&self) -> Sender<Action> {
+        self.action_sender.clone()
     }
 
 
-    pub fn mutate(&mut self, mutator: Mutation) -> bool{
+    pub fn mutate(&mut self, reducer: Action) -> bool{
         //
-        let mutated = match self.mutators.get(mutator.name) {
-            Some(mutator_fn) =>  {
-                let state_updater_fn: Mutator = *mutator_fn;
+        let mutated = match self.reducers.get(reducer.name) {
+            Some(reducer_fn) =>  {
+                let state_updater_fn: Reducer = *reducer_fn;
                 
-                let new_state = state_updater_fn(&self.state[..], mutator);
+                let new_state = state_updater_fn(&self.state[..], reducer);
                 for filtered_state_sender in &self.filtered_state_senders {
                     let state_sender_filter_fn: StateSenderFilter  = filtered_state_sender.state_sender_filter;
                     if state_sender_filter_fn(&self.state[..], &new_state) {
@@ -96,14 +96,14 @@ impl RootState {
 }
 
 #[allow(dead_code)]
-pub struct Mutation {
+pub struct Action {
     pub name: &'static str,
     pub value: String,
     pub number: isize
 }
-impl Mutation {
-    pub fn new(name: &'static str, value: String, number: isize) -> Mutation {
-        Mutation {
+impl Action {
+    pub fn new(name: &'static str, value: String, number: isize) -> Action {
+        Action {
             name,
             value,
             number

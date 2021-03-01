@@ -13,7 +13,7 @@
 //! the [`RootState`] object.
 //! Events from the HID layer trigger Events on GUI elements.
 //! The State can be changed by signalling the RootState with a 
-//! Mutator
+//! Reducer
 //!
 //! [`RootState`]: ./state/struct.RootState.html
 //! [`RootView`]: ./views/struct.RootView.html
@@ -22,7 +22,9 @@
 //! [`hid`]: ./hid/index.html
 //! [`gui_tk`]: ./gui_tk/index.html
 //!
-//!
+//! ## Architecture Diagram for an applicaiton
+//! 
+//! ![Architecture of a Lovett Program](../Architecture.png "Architecture of a Lovett Program")
 //!
 //! It is recommended to include this crate in your Cargo.toml
 //! and then setup the main components of your application
@@ -69,7 +71,7 @@
 //!```rust
 //!pub struct App {
 //!    pub root_controller: RootController,        // for handling GuiAction inputs on a mspc channel
-//!    pub root_state: RootState,                  // for broadcasting state changes and receiving mutator requests
+//!    pub root_state: RootState,                  // for broadcasting state changes and receiving reducer requests
 //!    pub root_view: RootView,                    // receives state updates, handles gui and hid interactions 
 //!                                                // and ... send Events/ to the Controller
 //!}
@@ -141,7 +143,7 @@
 //!* `state/mod.rd` Define the Struct that will represent your program state
 //!
 //!```rust
-//!pub mod mutators;                       // Include mutators
+//!pub mod reducers;                       // Include reducers
 //!use serde::{Serialize, Deserialize};    // make sure we have Serialize and Deserialize decorators
 //!
 //!use lovett::gui_tk::*;                  // we will likely need to reference some Gui properties
@@ -163,7 +165,7 @@
 //!...
 //!}
 //!```
-//!* state/mutators/mod.rs Define the mutator functions that will be triggered
+//!* state/reducers/mod.rs Define the reducer functions that will be triggered
 //!```rust
 //!use lovett::state::*;
 //!use lovett::gui_tk::*;
@@ -171,16 +173,16 @@
 //!
 //!;
 //!pub fn setup(root_state: &mut RootState) {
-//!        // create the mutator handlers
-//!        let example_updater: StateMutator = |state, mutator_signal| {
+//!        // create the reducer handlers
+//!        let example_updater: StateReducer = |state, reducer_signal| {
 //!            let mut decoded_state = state_decoder(state);
-//!            decoded_state.example = mutator_signal.value;
+//!            decoded_state.example = reducer_signal.value;
 //!            bincode::serialize(&decoded_state).unwrap()
 //!        };
 //!
 //!        ...
 //!
-//!        root_state.mutators.insert("[Example Mutation]", example_updater);
+//!        root_state.reducers.insert("[Example Action]", example_updater);
 //!
 //!}
 //!```
@@ -245,9 +247,9 @@ extern crate bincode;
 pub mod hid;
 pub mod fb;
 pub mod canvas;
-pub mod views;
+pub mod window_viewer;
 pub mod gui_tk;
-pub mod controller;
-pub mod state;
-
+pub mod model_scheduler;
+pub mod store;
+pub mod dispatcher;
 

@@ -1,6 +1,6 @@
 use super::canvas::Canvas;
 use super::gui_tk::{Gui,  Event, GuiState, Palette};
-use super::state::{eq_gui_state};
+use super::store::{eq_gui_state};
 use std::sync::mpsc::{Sender, Receiver};
 use super::hid::{HIDEvent, IOState};
 
@@ -395,9 +395,9 @@ impl View {
                     self.v_move(amount - 1);
                 }
             }
-            // if change send mutator
+            // if change send reducer
             if original_selected_object != self.selected_object {
-//                self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+//                self.action_sender.send( Action::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
                 self.move_selection();
             }
             
@@ -454,7 +454,7 @@ impl View {
             self.h_cell_move(1);
         }
         if original_selected_object != self.selected_object {
-//            self.mutation_sender.send( Mutation::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
+//            self.action_sender.send( Action::new("[Move Selection To]", self.name.clone(), self.selected_object as isize) ).unwrap();
             self.move_selection();
         }
     }
