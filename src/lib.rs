@@ -9,7 +9,7 @@
 //! reduced by the reducer functions which do not mutate the state.
 //!
 //! [`WindowViewer`] Holds a collection of [`View`] objects which
-//! can render on to the RootvView's [`Canvas`] and paint [`gui_tk`] elements.
+//! can render on to the WindowViewer's [`Canvas`] and paint [`gui_tk`] elements.
 //! Furthermore, the WindowViewer receives input from an hid_event sender, [`hid`]
 //! Each view can recieve updated copies of a State tree contained by
 //! the [`Store`] object.
