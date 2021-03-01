@@ -27,18 +27,18 @@ enum InputMode {
     Manipulate
 }
 
-pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
-    root_view.initialize();
-    root_view.activate_bar();
+pub fn run_view(mut window_viewer: WindowViewer) -> JoinHandle<()>{
+    window_viewer.initialize();
+    window_viewer.activate_bar();
     thread::spawn(move || {
         loop {
-            match root_view.input_receiver.try_recv() {
+            match window_viewer.input_receiver.try_recv() {
                 Ok(hid_events) => {
                     for h_e in &hid_events {
                         debug!("HIDEvent: {:#?}", h_e);
-                        match root_view.handle_hid_event(h_e) {
+                        match window_viewer.handle_hid_event(h_e) {
                             Some(event) => {
-                                root_view.handle_event(event);                
+                                window_viewer.handle_event(event);                
                             },
                             None => ()
                         }
@@ -47,9 +47,9 @@ pub fn run_view(mut root_view: RootView) -> JoinHandle<()>{
                 },
                 Err(_) => ()
             }
-            if root_view.update_bar() 
-                || root_view.update_active_view() {
-                    root_view.render();
+            if window_viewer.update_bar() 
+                || window_viewer.update_active_view() {
+                    window_viewer.render();
             }
             thread::sleep(Duration::from_millis(5));
         }
@@ -91,7 +91,7 @@ pub struct ViewSettings {
     pub font_file: &'static str
 }
 
-pub struct RootView {
+pub struct WindowViewer {
     bar: View,
     views: Vec<Box<View>>,
     active: usize,
@@ -100,10 +100,10 @@ pub struct RootView {
     event_sender: Sender<Event>
 }
 
-impl RootView {
-    pub fn new(fbdev: &'static str,  input_receiver: Receiver<Vec<HIDEvent>>, event_sender: Sender<Event>, info_bar_view: View) -> RootView {
+impl WindowViewer {
+    pub fn new(fbdev: &'static str,  input_receiver: Receiver<Vec<HIDEvent>>, event_sender: Sender<Event>, info_bar_view: View) -> WindowViewer {
         let canvas: Canvas = Canvas::new(fbdev);
-        RootView {
+        WindowViewer {
             bar: info_bar_view,
             views: vec![],
             canvas: canvas,

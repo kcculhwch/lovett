@@ -1,16 +1,18 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `lovett` crate."><meta name="keywords" content="rust, rustlang, rust-lang, lovett"><title>lovett - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="../favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../lovett/index.html'><div class='logo-container'><img src='../rust-logo.png' alt='logo'></div></a><p class='location'>Crate lovett</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all lovett's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'lovett', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/lovett/lib.rs.html#1-251' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>lovett</a></span></h1><div class='docblock'><p>Lovett is a framework for developing simple GUI apps
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `lovett` crate."><meta name="keywords" content="rust, rustlang, rust-lang, lovett"><title>lovett - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="../favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../lovett/index.html'><div class='logo-container'><img src='../rust-logo.png' alt='logo'></div></a><p class='location'>Crate lovett</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all lovett's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'lovett', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/lovett/lib.rs.html#1-254' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>lovett</a></span></h1><div class='docblock'><p>Lovett is a framework for developing simple GUI apps
 on Raspberry PI systems.</p>
 <p>Currently it supports limited hardware configurations
 but it is intended to be flexible but powerful.</p>
 <p>At its core there is a View, State, Event Bus architecture</p>
-<p><a href="./views/struct.RootView.html"><code>RootView</code></a> Holds a collection of <a href="./views/struct.View.html"><code>View</code></a> objects which
+<p><a href="./views/struct.WindowViewer.html"><code>WindowViewer</code></a> Holds a collection of <a href="./views/struct.View.html"><code>View</code></a> objects which
 can render on to the RootvView's <a href="./canvas/struct.Canvas.html"><code>Canvas</code></a> and paint <a href="./gui_tk/index.html"><code>gui_tk</code></a> elements.
-Furthermore, the RootView receives input from an hid_event sender, <a href="./hid/index.html"><code>hid</code></a>
+Furthermore, the WindowViewer receives input from an hid_event sender, <a href="./hid/index.html"><code>hid</code></a>
 Each view can recieve updated copies of a State tree contained by
-the <a href="./state/struct.RootState.html"><code>RootState</code></a> object.
+the <a href="./state/struct.Store.html"><code>Store</code></a> object.
 Events from the HID layer trigger Events on GUI elements.
-The State can be changed by signalling the RootState with a 
-Mutator</p>
+The State can be changed by signalling the Store with a 
+Reducer</p>
+<h2 id="architecture-diagram-for-an-applicaiton" class="section-header"><a href="#architecture-diagram-for-an-applicaiton">Architecture Diagram for an applicaiton</a></h2>
+<p><img src="../Architecture.png" alt="Architecture of a Lovett Program" title="Architecture of a Lovett Program" /></p>
 <p>It is recommended to include this crate in your Cargo.toml
 and then setup the main components of your application</p>
 <h3 id="usage" class="section-header"><a href="#usage">Usage</a></h3>
@@ -25,7 +27,7 @@ lovett = { git = &quot;https://github.com/kcculhwch/lovett&quot; }
 
 <span class="comment">// Crates</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">lovett</span>;      <span class="comment">// The Framework</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde</span>;       <span class="comment">// If you use the root_state handler you will need serde and bincode to for the state</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde</span>;       <span class="comment">// If you use the store handler you will need serde and bincode to for the state</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">bincode</span>;     <span class="comment">// object generator.</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">env_logger</span>;  <span class="comment">// env_logger is just an easy to use logger for getting log values out of the Framework</span>
 <span class="kw">mod</span> <span class="ident">app</span>;                  <span class="comment">// the app module which we will outline below</span>
@@ -46,9 +48,9 @@ lovett = { git = &quot;https://github.com/kcculhwch/lovett&quot; }
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">App</span> {
-    <span class="kw">pub</span> <span class="ident">root_controller</span>: <span class="ident">RootController</span>,        <span class="comment">// for handling GuiAction inputs on a mspc channel</span>
-    <span class="kw">pub</span> <span class="ident">root_state</span>: <span class="ident">RootState</span>,                  <span class="comment">// for broadcasting state changes and receiving mutator requests</span>
-    <span class="kw">pub</span> <span class="ident">root_view</span>: <span class="ident">RootView</span>,                    <span class="comment">// receives state updates, handles gui and hid interactions </span>
+    <span class="kw">pub</span> <span class="ident">model_scheduler</span>: <span class="ident">ModelScheduler</span>,        <span class="comment">// for handling GuiAction inputs on a mspc channel</span>
+    <span class="kw">pub</span> <span class="ident">store</span>: <span class="ident">Store</span>,                  <span class="comment">// for broadcasting state changes and receiving reducer requests</span>
+    <span class="kw">pub</span> <span class="ident">window_viewer</span>: <span class="ident">WindowViewer</span>,                    <span class="comment">// receives state updates, handles gui and hid interactions </span>
                                                 <span class="comment">// and ... send Events/ to the Controller</span>
 }</pre></div>
 <ul>
@@ -68,10 +70,10 @@ lovett = { git = &quot;https://github.com/kcculhwch/lovett&quot; }
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_app</span>(<span class="ident">app</span>: <span class="ident">App</span>) {
-    <span class="ident">run_view</span>(<span class="ident">app</span>.<span class="ident">root_view</span>);
-    <span class="ident">run_state</span>(<span class="ident">app</span>.<span class="ident">root_state</span>);
+    <span class="ident">run_view</span>(<span class="ident">app</span>.<span class="ident">window_viewer</span>);
+    <span class="ident">run_state</span>(<span class="ident">app</span>.<span class="ident">store</span>);
     <span class="comment">// join the last thread</span>
-    <span class="ident">run_controller</span>(<span class="ident">app</span>.<span class="ident">root_controller</span>).<span class="ident">join</span>().<span class="ident">expect</span>(<span class="string">&quot;Couldn&#39;t join on the associated thread&quot;</span>);
+    <span class="ident">run_controller</span>(<span class="ident">app</span>.<span class="ident">model_scheduler</span>).<span class="ident">join</span>().<span class="ident">expect</span>(<span class="string">&quot;Couldn&#39;t join on the associated thread&quot;</span>);
 }</pre></div>
 <h4 id="setup-an-hid-event-sender" class="section-header"><a href="#setup-an-hid-event-sender">Setup an hid event sender</a></h4>
 <p>currently the only support sender is a ButtonPad
@@ -98,7 +100,7 @@ the button pat sends an array of hid_events whenever new data is available</p>
         ];
 
 
-        <span class="comment">//create channesl for sending raw input buttons to the root_view</span>
+        <span class="comment">//create channesl for sending raw input buttons to the window_viewer</span>
         <span class="kw">let</span> (<span class="ident">input_tx</span>, <span class="ident">input_rx</span>) <span class="op">=</span> <span class="ident">mpsc</span>::<span class="ident">channel</span>();
 
         <span class="comment">// setup the button_pad</span>
@@ -108,13 +110,13 @@ the button pat sends an array of hid_events whenever new data is available</p>
             <span class="prelude-val">Err</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Error Starting Button Pad: {}&quot;</span>, <span class="ident">x</span>)
         };</pre></div>
 <h4 id="setup-state" class="section-header"><a href="#setup-state">setup State</a></h4>
-<p>Create the root_state holder. (This still has way to much specific stuff in it)</p>
+<p>Create the store holder. (This still has way to much specific stuff in it)</p>
 <ul>
 <li><code>state/mod.rd</code> Define the Struct that will represent your program state</li>
 </ul>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mutators</span>;                       <span class="comment">// Include mutators</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">reducers</span>;                       <span class="comment">// Include reducers</span>
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>};    <span class="comment">// make sure we have Serialize and Deserialize decorators</span>
 
 <span class="kw">use</span> <span class="ident">lovett</span>::<span class="ident">gui_tk</span>::<span class="kw-2">*</span>;                  <span class="comment">// we will likely need to reference some Gui properties</span>
@@ -136,7 +138,7 @@ the button pat sends an array of hid_events whenever new data is available</p>
 ...
 }</pre></div>
 <ul>
-<li>state/mutators/mod.rs Define the mutator functions that will be triggered</li>
+<li>state/reducers/mod.rs Define the reducer functions that will be triggered</li>
 </ul>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -145,18 +147,18 @@ the button pat sends an array of hid_events whenever new data is available</p>
 <span class="kw">use</span> <span class="kw">super</span>::<span class="op">*</span>
 
 ;
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup</span>(<span class="ident">root_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RootState</span>) {
-        <span class="comment">// create the mutator handlers</span>
-        <span class="kw">let</span> <span class="ident">example_updater</span>: <span class="ident">StateMutator</span> <span class="op">=</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">mutator_signal</span><span class="op">|</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup</span>(<span class="ident">store</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Store</span>) {
+        <span class="comment">// create the reducer handlers</span>
+        <span class="kw">let</span> <span class="ident">example_updater</span>: <span class="ident">StateReducer</span> <span class="op">=</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">reducer_signal</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded_state</span> <span class="op">=</span> <span class="ident">state_decoder</span>(<span class="ident">state</span>);
-            <span class="ident">decoded_state</span>.<span class="ident">example</span> <span class="op">=</span> <span class="ident">mutator_signal</span>.<span class="ident">value</span>;
+            <span class="ident">decoded_state</span>.<span class="ident">example</span> <span class="op">=</span> <span class="ident">reducer_signal</span>.<span class="ident">value</span>;
             <span class="ident">bincode</span>::<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">decoded_state</span>).<span class="ident">unwrap</span>()
         };
 
         ...
 
-        <span class="ident">root_state</span>.<span class="ident">mutators</span>.<span class="ident">insert</span>(<span class="string">&quot;[Example Mutation]&quot;</span>, <span class="ident">example_updater</span>);
+        <span class="ident">store</span>.<span class="ident">reducers</span>.<span class="ident">insert</span>(<span class="string">&quot;[Example Action]&quot;</span>, <span class="ident">example_updater</span>);
 
 }</pre></div>
 </div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
-<table><tr class='module-item'><td><a class="mod" href="canvas/index.html" title='lovett::canvas mod'>canvas</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="controller/index.html" title='lovett::controller mod'>controller</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="fb/index.html" title='lovett::fb mod'>fb</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="gui_tk/index.html" title='lovett::gui_tk mod'>gui_tk</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="hid/index.html" title='lovett::hid mod'>hid</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="state/index.html" title='lovett::state mod'>state</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="views/index.html" title='lovett::views mod'>views</a></td><td class='docblock-short'></td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../";window.currentCrate = "lovett";</script><script src="../aliases.js"></script><script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>
+<table><tr class='module-item'><td><a class="mod" href="canvas/index.html" title='lovett::canvas mod'>canvas</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="dispatcher/index.html" title='lovett::dispatcher mod'>dispatcher</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="fb/index.html" title='lovett::fb mod'>fb</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="gui_tk/index.html" title='lovett::gui_tk mod'>gui_tk</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="hid/index.html" title='lovett::hid mod'>hid</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="model_scheduler/index.html" title='lovett::model_scheduler mod'>model_scheduler</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="store/index.html" title='lovett::store mod'>store</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="window_viewer/index.html" title='lovett::window_viewer mod'>window_viewer</a></td><td class='docblock-short'></td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../";window.currentCrate = "lovett";</script><script src="../aliases.js"></script><script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>

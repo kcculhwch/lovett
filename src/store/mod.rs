@@ -8,14 +8,14 @@ use super::gui_tk::GuiState;
 //use chrono::format::strftime;
 //use log::*;
 
-pub fn run_state(mut root_state:  RootState) -> JoinHandle<()>{
+pub fn run_state(mut store:  Store) -> JoinHandle<()>{
         thread::spawn(move || {
             loop {
 
                 // lisen for reducers
-                match root_state.action_receiver.try_recv() {
+                match store.action_receiver.try_recv() {
                     Ok(reducer) => {
-                        root_state.mutate(reducer);
+                        store.mutate(reducer);
                     },
                     Err(_) => ()
                 };
@@ -34,7 +34,7 @@ pub struct FilteredStateSender {
 }
 
 
-pub struct RootState {
+pub struct Store {
     pub state: Vec<u8>,
     pub filtered_state_senders: Vec<FilteredStateSender>,
     pub action_receiver: Receiver<Action>,
@@ -42,11 +42,11 @@ pub struct RootState {
     pub reducers: HashMap<&'static str, Reducer>
 }
 
-impl RootState {
-    pub fn new(state: Vec<u8>) -> RootState {
+impl Store {
+    pub fn new(state: Vec<u8>) -> Store {
         let (sender, receiver) = channel();
         let reducers: HashMap<&'static str, Reducer > = HashMap::new();
-        RootState {
+        Store {
             reducers,
             state,
             filtered_state_senders: vec![],

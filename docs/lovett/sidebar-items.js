@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["canvas",""],["controller",""],["fb",""],["gui_tk",""],["hid",""],["state",""],["views",""]]});
+initSidebarItems({"mod":[["canvas",""],["dispatcher",""],["fb",""],["gui_tk",""],["hid",""],["model_scheduler",""],["store",""],["window_viewer",""]]});

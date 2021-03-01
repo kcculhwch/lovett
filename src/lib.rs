@@ -6,17 +6,17 @@
 //!
 //! At its core there is a View, State, Event Bus architecture
 //!
-//! [`RootView`] Holds a collection of [`View`] objects which
+//! [`WindowViewer`] Holds a collection of [`View`] objects which
 //! can render on to the RootvView's [`Canvas`] and paint [`gui_tk`] elements.
-//! Furthermore, the RootView receives input from an hid_event sender, [`hid`]
+//! Furthermore, the WindowViewer receives input from an hid_event sender, [`hid`]
 //! Each view can recieve updated copies of a State tree contained by
-//! the [`RootState`] object.
+//! the [`Store`] object.
 //! Events from the HID layer trigger Events on GUI elements.
-//! The State can be changed by signalling the RootState with a 
+//! The State can be changed by signalling the Store with a 
 //! Reducer
 //!
-//! [`RootState`]: ./state/struct.RootState.html
-//! [`RootView`]: ./views/struct.RootView.html
+//! [`Store`]: ./state/struct.Store.html
+//! [`WindowViewer`]: ./views/struct.WindowViewer.html
 //! [`Canvas`]: ./canvas/struct.Canvas.html
 //! [`View`]: ./views/struct.View.html
 //! [`hid`]: ./hid/index.html
@@ -48,7 +48,7 @@
 //!
 //!// Crates
 //!extern crate lovett;      // The Framework
-//!extern crate serde;       // If you use the root_state handler you will need serde and bincode to for the state
+//!extern crate serde;       // If you use the store handler you will need serde and bincode to for the state
 //!extern crate bincode;     // object generator.
 //!extern crate env_logger;  // env_logger is just an easy to use logger for getting log values out of the Framework
 //!mod app;                  // the app module which we will outline below
@@ -70,9 +70,9 @@
 //!* `struct App`
 //!```rust
 //!pub struct App {
-//!    pub root_controller: RootController,        // for handling GuiAction inputs on a mspc channel
-//!    pub root_state: RootState,                  // for broadcasting state changes and receiving reducer requests
-//!    pub root_view: RootView,                    // receives state updates, handles gui and hid interactions 
+//!    pub model_scheduler: ModelScheduler,        // for handling GuiAction inputs on a mspc channel
+//!    pub store: Store,                  // for broadcasting state changes and receiving reducer requests
+//!    pub window_viewer: WindowViewer,                    // receives state updates, handles gui and hid interactions 
 //!                                                // and ... send Events/ to the Controller
 //!}
 //!```
@@ -90,10 +90,10 @@
 //!* `run_app`
 //!```rust
 //!pub fn run_app(app: App) {
-//!    run_view(app.root_view);
-//!    run_state(app.root_state);
+//!    run_view(app.window_viewer);
+//!    run_state(app.store);
 //!    // join the last thread
-//!    run_controller(app.root_controller).join().expect("Couldn't join on the associated thread");
+//!    run_controller(app.model_scheduler).join().expect("Couldn't join on the associated thread");
 //!}
 //!```
 //!
@@ -125,7 +125,7 @@
 //!        ];
 //!
 //!
-//!        //create channesl for sending raw input buttons to the root_view
+//!        //create channesl for sending raw input buttons to the window_viewer
 //!        let (input_tx, input_rx) = mpsc::channel();
 //!
 //!        // setup the button_pad
@@ -138,7 +138,7 @@
 //!
 //!#### setup State 
 //!
-//!Create the root_state holder. (This still has way to much specific stuff in it)
+//!Create the store holder. (This still has way to much specific stuff in it)
 //!
 //!* `state/mod.rd` Define the Struct that will represent your program state
 //!
@@ -172,7 +172,7 @@
 //!use super::*
 //!
 //!;
-//!pub fn setup(root_state: &mut RootState) {
+//!pub fn setup(store: &mut Store) {
 //!        // create the reducer handlers
 //!        let example_updater: StateReducer = |state, reducer_signal| {
 //!            let mut decoded_state = state_decoder(state);
@@ -182,7 +182,7 @@
 //!
 //!        ...
 //!
-//!        root_state.reducers.insert("[Example Action]", example_updater);
+//!        store.reducers.insert("[Example Action]", example_updater);
 //!
 //!}
 //!```

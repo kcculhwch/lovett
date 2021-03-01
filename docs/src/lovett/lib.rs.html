@@ -251,6 +251,8 @@
 <span id="251">251</span>
 <span id="252">252</span>
 <span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Lovett is a framework for developing simple GUI apps</span>
 <span class="doccomment">//! on Raspberry PI systems.</span>
@@ -260,23 +262,25 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! At its core there is a View, State, Event Bus architecture</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! [`RootView`] Holds a collection of [`View`] objects which</span>
+<span class="doccomment">//! [`WindowViewer`] Holds a collection of [`View`] objects which</span>
 <span class="doccomment">//! can render on to the RootvView&#39;s [`Canvas`] and paint [`gui_tk`] elements.</span>
-<span class="doccomment">//! Furthermore, the RootView receives input from an hid_event sender, [`hid`]</span>
+<span class="doccomment">//! Furthermore, the WindowViewer receives input from an hid_event sender, [`hid`]</span>
 <span class="doccomment">//! Each view can recieve updated copies of a State tree contained by</span>
-<span class="doccomment">//! the [`RootState`] object.</span>
+<span class="doccomment">//! the [`Store`] object.</span>
 <span class="doccomment">//! Events from the HID layer trigger Events on GUI elements.</span>
-<span class="doccomment">//! The State can be changed by signalling the RootState with a </span>
-<span class="doccomment">//! Mutator</span>
+<span class="doccomment">//! The State can be changed by signalling the Store with a </span>
+<span class="doccomment">//! Reducer</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! [`RootState`]: ./state/struct.RootState.html</span>
-<span class="doccomment">//! [`RootView`]: ./views/struct.RootView.html</span>
+<span class="doccomment">//! [`Store`]: ./state/struct.Store.html</span>
+<span class="doccomment">//! [`WindowViewer`]: ./views/struct.WindowViewer.html</span>
 <span class="doccomment">//! [`Canvas`]: ./canvas/struct.Canvas.html</span>
 <span class="doccomment">//! [`View`]: ./views/struct.View.html</span>
 <span class="doccomment">//! [`hid`]: ./hid/index.html</span>
 <span class="doccomment">//! [`gui_tk`]: ./gui_tk/index.html</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Architecture Diagram for an applicaiton</span>
+<span class="doccomment">//! </span>
+<span class="doccomment">//! ![Architecture of a Lovett Program](../Architecture.png &quot;Architecture of a Lovett Program&quot;)</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! It is recommended to include this crate in your Cargo.toml</span>
 <span class="doccomment">//! and then setup the main components of your application</span>
@@ -300,7 +304,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//!// Crates</span>
 <span class="doccomment">//!extern crate lovett;      // The Framework</span>
-<span class="doccomment">//!extern crate serde;       // If you use the root_state handler you will need serde and bincode to for the state</span>
+<span class="doccomment">//!extern crate serde;       // If you use the store handler you will need serde and bincode to for the state</span>
 <span class="doccomment">//!extern crate bincode;     // object generator.</span>
 <span class="doccomment">//!extern crate env_logger;  // env_logger is just an easy to use logger for getting log values out of the Framework</span>
 <span class="doccomment">//!mod app;                  // the app module which we will outline below</span>
@@ -322,9 +326,9 @@
 <span class="doccomment">//!* `struct App`</span>
 <span class="doccomment">//!```rust</span>
 <span class="doccomment">//!pub struct App {</span>
-<span class="doccomment">//!    pub root_controller: RootController,        // for handling GuiAction inputs on a mspc channel</span>
-<span class="doccomment">//!    pub root_state: RootState,                  // for broadcasting state changes and receiving mutator requests</span>
-<span class="doccomment">//!    pub root_view: RootView,                    // receives state updates, handles gui and hid interactions </span>
+<span class="doccomment">//!    pub model_scheduler: ModelScheduler,        // for handling GuiAction inputs on a mspc channel</span>
+<span class="doccomment">//!    pub store: Store,                  // for broadcasting state changes and receiving reducer requests</span>
+<span class="doccomment">//!    pub window_viewer: WindowViewer,                    // receives state updates, handles gui and hid interactions </span>
 <span class="doccomment">//!                                                // and ... send Events/ to the Controller</span>
 <span class="doccomment">//!}</span>
 <span class="doccomment">//!```</span>
@@ -342,10 +346,10 @@
 <span class="doccomment">//!* `run_app`</span>
 <span class="doccomment">//!```rust</span>
 <span class="doccomment">//!pub fn run_app(app: App) {</span>
-<span class="doccomment">//!    run_view(app.root_view);</span>
-<span class="doccomment">//!    run_state(app.root_state);</span>
+<span class="doccomment">//!    run_view(app.window_viewer);</span>
+<span class="doccomment">//!    run_state(app.store);</span>
 <span class="doccomment">//!    // join the last thread</span>
-<span class="doccomment">//!    run_controller(app.root_controller).join().expect(&quot;Couldn&#39;t join on the associated thread&quot;);</span>
+<span class="doccomment">//!    run_controller(app.model_scheduler).join().expect(&quot;Couldn&#39;t join on the associated thread&quot;);</span>
 <span class="doccomment">//!}</span>
 <span class="doccomment">//!```</span>
 <span class="doccomment">//!</span>
@@ -377,7 +381,7 @@
 <span class="doccomment">//!        ];</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!        //create channesl for sending raw input buttons to the root_view</span>
+<span class="doccomment">//!        //create channesl for sending raw input buttons to the window_viewer</span>
 <span class="doccomment">//!        let (input_tx, input_rx) = mpsc::channel();</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!        // setup the button_pad</span>
@@ -390,12 +394,12 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//!#### setup State </span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!Create the root_state holder. (This still has way to much specific stuff in it)</span>
+<span class="doccomment">//!Create the store holder. (This still has way to much specific stuff in it)</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!* `state/mod.rd` Define the Struct that will represent your program state</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!```rust</span>
-<span class="doccomment">//!pub mod mutators;                       // Include mutators</span>
+<span class="doccomment">//!pub mod reducers;                       // Include reducers</span>
 <span class="doccomment">//!use serde::{Serialize, Deserialize};    // make sure we have Serialize and Deserialize decorators</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!use lovett::gui_tk::*;                  // we will likely need to reference some Gui properties</span>
@@ -417,24 +421,24 @@
 <span class="doccomment">//!...</span>
 <span class="doccomment">//!}</span>
 <span class="doccomment">//!```</span>
-<span class="doccomment">//!* state/mutators/mod.rs Define the mutator functions that will be triggered</span>
+<span class="doccomment">//!* state/reducers/mod.rs Define the reducer functions that will be triggered</span>
 <span class="doccomment">//!```rust</span>
 <span class="doccomment">//!use lovett::state::*;</span>
 <span class="doccomment">//!use lovett::gui_tk::*;</span>
 <span class="doccomment">//!use super::*</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!;</span>
-<span class="doccomment">//!pub fn setup(root_state: &amp;mut RootState) {</span>
-<span class="doccomment">//!        // create the mutator handlers</span>
-<span class="doccomment">//!        let example_updater: StateMutator = |state, mutator_signal| {</span>
+<span class="doccomment">//!pub fn setup(store: &amp;mut Store) {</span>
+<span class="doccomment">//!        // create the reducer handlers</span>
+<span class="doccomment">//!        let example_updater: StateReducer = |state, reducer_signal| {</span>
 <span class="doccomment">//!            let mut decoded_state = state_decoder(state);</span>
-<span class="doccomment">//!            decoded_state.example = mutator_signal.value;</span>
+<span class="doccomment">//!            decoded_state.example = reducer_signal.value;</span>
 <span class="doccomment">//!            bincode::serialize(&amp;decoded_state).unwrap()</span>
 <span class="doccomment">//!        };</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!        ...</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!        root_state.mutators.insert(&quot;[Example Mutation]&quot;, example_updater);</span>
+<span class="doccomment">//!        store.reducers.insert(&quot;[Example Action]&quot;, example_updater);</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!}</span>
 <span class="doccomment">//!```</span>
@@ -499,11 +503,11 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hid</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fb</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">canvas</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">views</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">window_viewer</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gui_tk</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">controller</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">state</span>;
-
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">model_scheduler</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">store</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dispatcher</span>;
 
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "lovett";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
