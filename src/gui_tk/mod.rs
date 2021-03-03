@@ -139,11 +139,11 @@ pub struct GuiImage {
 #[derive(Clone, Debug)]
 pub struct Event {
     pub name: &'static str,
-    pub values: Option<Vec<&'static str>>
+    pub values: Option<Vec<String>>
 }
 
 impl Event {
-    pub fn new(name: &'static str, values: Option<Vec<&'static str>>) -> Event {
+    pub fn new(name: &'static str, values: Option<Vec<String>>) -> Event {
         Event {
             name, values
         }
