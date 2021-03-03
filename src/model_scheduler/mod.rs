@@ -5,7 +5,7 @@ use std::thread::JoinHandle;
 use std::collections::HashMap;
 use std::time::{Duration};
 
-pub fn run_scheduler(mut scheduler: ModelScheduler) -> JoinHandle<()>{
+pub fn run_model_scheduler(mut scheduler: ModelScheduler) -> JoinHandle<()>{
     thread::spawn(move || {
         loop {                
             scheduler.process_events();

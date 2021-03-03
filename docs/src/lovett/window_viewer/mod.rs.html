@@ -631,7 +631,7 @@
     <span class="ident">Manipulate</span>
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_view</span>(<span class="kw-2">mut</span> <span class="ident">window_viewer</span>: <span class="ident">WindowViewer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>{
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_window_viewer</span>(<span class="kw-2">mut</span> <span class="ident">window_viewer</span>: <span class="ident">WindowViewer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>{
     <span class="ident">window_viewer</span>.<span class="ident">initialize</span>();
     <span class="ident">window_viewer</span>.<span class="ident">activate_bar</span>();
     <span class="ident">thread</span>::<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {

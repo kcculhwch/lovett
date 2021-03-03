@@ -51,7 +51,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::{<span class="ident">Duration</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_scheduler</span>(<span class="kw-2">mut</span> <span class="ident">scheduler</span>: <span class="ident">ModelScheduler</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>{
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_model_scheduler</span>(<span class="kw-2">mut</span> <span class="ident">scheduler</span>: <span class="ident">ModelScheduler</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>{
     <span class="ident">thread</span>::<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
         <span class="kw">loop</span> {                
             <span class="ident">scheduler</span>.<span class="ident">process_events</span>();

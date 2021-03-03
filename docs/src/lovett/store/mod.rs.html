@@ -166,7 +166,7 @@
 <span class="comment">//use chrono::format::strftime;</span>
 <span class="comment">//use log::*;</span>
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_state</span>(<span class="kw-2">mut</span> <span class="ident">store</span>:  <span class="ident">Store</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>{
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_store</span>(<span class="kw-2">mut</span> <span class="ident">store</span>:  <span class="ident">Store</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>{
         <span class="ident">thread</span>::<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
             <span class="kw">loop</span> {
 

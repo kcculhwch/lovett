@@ -8,7 +8,7 @@ use super::gui_tk::GuiState;
 //use chrono::format::strftime;
 //use log::*;
 
-pub fn run_state(mut store:  Store) -> JoinHandle<()>{
+pub fn run_store(mut store:  Store) -> JoinHandle<()>{
         thread::spawn(move || {
             loop {
 
