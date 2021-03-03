@@ -12,10 +12,10 @@ pub fn run_state(mut store:  Store) -> JoinHandle<()>{
         thread::spawn(move || {
             loop {
 
-                // lisen for reducers
+                // lisen for actions
                 match store.action_receiver.try_recv() {
-                    Ok(reducer) => {
-                        store.mutate(reducer);
+                    Ok(action) => {
+                        store.reduce(action);
                     },
                     Err(_) => ()
                 };
@@ -70,13 +70,13 @@ impl Store {
     }
 
 
-    pub fn mutate(&mut self, reducer: Action) -> bool{
+    pub fn reduce(&mut self, action: Action) -> bool{
         //
-        let mutated = match self.reducers.get(reducer.name) {
+        let mutated = match self.reducers.get(action.name) {
             Some(reducer_fn) =>  {
-                let state_updater_fn: Reducer = *reducer_fn;
+                let reducer: Reducer = *reducer_fn;
                 
-                let new_state = state_updater_fn(&self.state[..], reducer);
+                let new_state = reducer(&self.state[..], action);
                 for filtered_state_sender in &self.filtered_state_senders {
                     let state_sender_filter_fn: StateSenderFilter  = filtered_state_sender.state_sender_filter;
                     if state_sender_filter_fn(&self.state[..], &new_state) {

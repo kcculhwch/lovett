@@ -176,7 +176,7 @@
 //!;
 //!pub fn setup(store: &mut Store) {
 //!        // create the reducer handlers
-//!        let example_updater: StateReducer = |state, reducer_signal| {
+//!        let example_reducer: Reducer = |state, action| {
 //!            let mut decoded_state = state_decoder(state);
 //!            decoded_state.example = reducer_signal.value;
 //!            bincode::serialize(&decoded_state).unwrap()
@@ -184,7 +184,7 @@
 //!
 //!        ...
 //!
-//!        store.reducers.insert("[Example Action]", example_updater);
+//!        store.reducers.insert("[Example Action]", example_reducer);
 //!
 //!}
 //!```
