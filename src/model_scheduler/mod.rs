@@ -40,6 +40,14 @@ impl ModelScheduler {
 }
 
 
-pub trait Model {}
+pub trait Model {
+    fn loop_handler(&mut self) {
+
+    }
+
+    fn handler(&mut self) {
+
+    }
+}
 
 
