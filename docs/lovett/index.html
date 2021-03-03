@@ -6,7 +6,7 @@ but it is intended to be flexible but powerful.</p>
 where state data is fully centralized in the store, and can only be 
 reduced by the reducer functions which do not mutate the state.</p>
 <p><a href="./window_viewer/struct.WindowViewer.html"><code>WindowViewer</code></a> Holds a collection of <a href="./window_viewer/struct.View.html"><code>View</code></a> objects which
-can render on to the RootvView's <a href="./canvas/struct.Canvas.html"><code>Canvas</code></a> and paint <a href="./gui_tk/index.html"><code>gui_tk</code></a> elements.
+can render on to the WindowViewer's <a href="./canvas/struct.Canvas.html"><code>Canvas</code></a> and paint <a href="./gui_tk/index.html"><code>gui_tk</code></a> elements.
 Furthermore, the WindowViewer receives input from an hid_event sender, <a href="./hid/index.html"><code>hid</code></a>
 Each view can recieve updated copies of a State tree contained by
 the <a href="./store/struct.Store.html"><code>Store</code></a> object.
@@ -151,7 +151,7 @@ the button pat sends an array of hid_events whenever new data is available</p>
 ;
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup</span>(<span class="ident">store</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Store</span>) {
         <span class="comment">// create the reducer handlers</span>
-        <span class="kw">let</span> <span class="ident">example_updater</span>: <span class="ident">StateReducer</span> <span class="op">=</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">reducer_signal</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">example_reducer</span>: <span class="ident">Reducer</span> <span class="op">=</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">action</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded_state</span> <span class="op">=</span> <span class="ident">state_decoder</span>(<span class="ident">state</span>);
             <span class="ident">decoded_state</span>.<span class="ident">example</span> <span class="op">=</span> <span class="ident">reducer_signal</span>.<span class="ident">value</span>;
             <span class="ident">bincode</span>::<span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="ident">decoded_state</span>).<span class="ident">unwrap</span>()
@@ -159,7 +159,7 @@ the button pat sends an array of hid_events whenever new data is available</p>
 
         ...
 
-        <span class="ident">store</span>.<span class="ident">reducers</span>.<span class="ident">insert</span>(<span class="string">&quot;[Example Action]&quot;</span>, <span class="ident">example_updater</span>);
+        <span class="ident">store</span>.<span class="ident">reducers</span>.<span class="ident">insert</span>(<span class="string">&quot;[Example Action]&quot;</span>, <span class="ident">example_reducer</span>);
 
 }</pre></div>
 </div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>

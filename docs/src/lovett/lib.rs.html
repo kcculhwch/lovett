@@ -267,7 +267,7 @@
 <span class="doccomment">//! reduced by the reducer functions which do not mutate the state.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! [`WindowViewer`] Holds a collection of [`View`] objects which</span>
-<span class="doccomment">//! can render on to the RootvView&#39;s [`Canvas`] and paint [`gui_tk`] elements.</span>
+<span class="doccomment">//! can render on to the WindowViewer&#39;s [`Canvas`] and paint [`gui_tk`] elements.</span>
 <span class="doccomment">//! Furthermore, the WindowViewer receives input from an hid_event sender, [`hid`]</span>
 <span class="doccomment">//! Each view can recieve updated copies of a State tree contained by</span>
 <span class="doccomment">//! the [`Store`] object.</span>
@@ -434,7 +434,7 @@
 <span class="doccomment">//!;</span>
 <span class="doccomment">//!pub fn setup(store: &amp;mut Store) {</span>
 <span class="doccomment">//!        // create the reducer handlers</span>
-<span class="doccomment">//!        let example_updater: StateReducer = |state, reducer_signal| {</span>
+<span class="doccomment">//!        let example_reducer: Reducer = |state, action| {</span>
 <span class="doccomment">//!            let mut decoded_state = state_decoder(state);</span>
 <span class="doccomment">//!            decoded_state.example = reducer_signal.value;</span>
 <span class="doccomment">//!            bincode::serialize(&amp;decoded_state).unwrap()</span>
@@ -442,7 +442,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//!        ...</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!        store.reducers.insert(&quot;[Example Action]&quot;, example_updater);</span>
+<span class="doccomment">//!        store.reducers.insert(&quot;[Example Action]&quot;, example_reducer);</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!}</span>
 <span class="doccomment">//!```</span>
