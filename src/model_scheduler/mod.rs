@@ -61,4 +61,4 @@ pub trait Model {
     }
 }
 #[allow(dead_code)]
-type Schedule = fn(&[u8], &HashMap<&'static str, Box<dyn Model + Send>>);
+pub type Schedule = fn(&[u8], &HashMap<&'static str, Box<dyn Model + Send>>);
