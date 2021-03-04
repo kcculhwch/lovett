@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["run_model_scheduler",""]],"struct":[["ModelScheduler",""]],"trait":[["Model",""]]});
+initSidebarItems({"fn":[["run_model_scheduler",""]],"struct":[["ModelScheduler",""]],"trait":[["Model",""]],"type":[["Schedule",""]]});
