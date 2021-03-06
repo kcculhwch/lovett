@@ -91,15 +91,14 @@ impl Store {
 #[allow(dead_code)]
 pub struct Action {
     pub name: &'static str,
-    pub value: String,
-    pub number: isize
+    pub values: Option<Vec<String>>
 }
+
 impl Action {
-    pub fn new(name: &'static str, value: String, number: isize) -> Action {
+    pub fn new(name: &'static str, values: Option<Vec<String>>) -> Action {
         Action {
             name,
-            value,
-            number
+            values,
         }
     }
 
