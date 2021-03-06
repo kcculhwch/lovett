@@ -16,6 +16,7 @@ pub fn run_model_scheduler(mut scheduler: ModelScheduler) -> JoinHandle<()>{
 #[allow(dead_code)]
 pub struct ModelScheduler {
     models: HashMap<&'static str, Box<dyn Model + Send>>,
+    threads: HashMap<&'static str, Option<JoinHandle<()>>>,
     pub state_rx: Receiver<Vec<u8>>,
     schedule: Schedule
 }
@@ -23,16 +24,17 @@ pub struct ModelScheduler {
 impl ModelScheduler {
     pub fn new(state_rx: Receiver<Vec<u8>>, schedule: Schedule) -> ModelScheduler {
         let models: HashMap<&'static str, Box<dyn Model + Send>> = HashMap::new();
+        let threads: HashMap<&'static str, Option<JoinHandle<()>>> = HashMap::new();
         ModelScheduler {
             models,
             state_rx,
-            schedule
+            schedule,
+            threads
         }
     }
 
     pub fn process_state(&mut self, state_vec: Vec<u8>){
         let schedule_fn = self.schedule;
-        schedule_fn(&state_vec, &mut self.models);     
     }
 
     pub fn register_model(&mut self,  name: &'static str, model: Box<dyn Model + Send>) {
@@ -45,6 +47,7 @@ pub trait Model {
     fn handler(&mut self) {
 
     }
+
 }
 #[allow(dead_code)]
-pub type Schedule = fn(&[u8], &mut HashMap<&'static str, Box<dyn Model + Send>>);
+pub type Schedule = fn(&[u8], &mut HashMap<&'static str, Box<dyn Model + Send>>, &mut HashMap<&'static str, Option<JoinHandle<()>>>);
