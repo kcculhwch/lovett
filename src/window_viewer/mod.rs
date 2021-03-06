@@ -8,7 +8,6 @@ use super::hid::{HIDEvent, IOState};
 use std::thread;
 use std::thread::JoinHandle;
 
-use std::time::{Duration};
 use log::*;
 
 /*
@@ -31,27 +30,20 @@ pub fn run_window_viewer(mut window_viewer: WindowViewer) -> JoinHandle<()>{
     window_viewer.initialize();
     window_viewer.activate_bar();
     thread::spawn(move || {
-        loop {
-            match window_viewer.input_receiver.try_recv() {
-                Ok(hid_events) => {
-                    for h_e in &hid_events {
-                        debug!("HIDEvent: {:#?}", h_e);
-                        match window_viewer.handle_hid_event(h_e) {
-                            Some(event) => {
-                                window_viewer.handle_event(event);                
-                            },
-                            None => ()
-                        }
-                    }
-                    
-                },
-                Err(_) => ()
-            }
+        while let Ok(hid_events) = window_viewer.input_receiver.recv() {
+            for h_e in &hid_events {
+                debug!("HIDEvent: {:#?}", h_e);
+                match window_viewer.handle_hid_event(h_e) {
+                    Some(event) => {
+                        window_viewer.handle_event(event);                
+                    },
+                    None => ()
+                }
+            }   
             if window_viewer.update_bar() 
                 || window_viewer.update_active_view() {
                     window_viewer.render();
             }
-            thread::sleep(Duration::from_millis(5));
         }
     })
 }

@@ -57,19 +57,12 @@
 <span id="57">57</span>
 <span id="58">58</span>
 <span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">gui_tk</span>::<span class="ident">Event</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">mpsc</span>::{<span class="ident">Sender</span>, <span class="ident">Receiver</span>, <span class="ident">channel</span>};
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">store</span>::<span class="ident">Action</span> <span class="kw">as</span> <span class="ident">Action</span>;
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::{<span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">JoinHandle</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dispatcher</span> {
@@ -80,17 +73,12 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_dispatcher</span>(<span class="kw-2">mut</span> <span class="ident">dispatcher</span>: <span class="ident">Dispatcher</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">JoinHandle</span><span class="op">&lt;</span>()<span class="op">&gt;</span>{
-    <span class="ident">thread</span>::<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-        <span class="kw">loop</span> {                
-            <span class="kw">let</span> <span class="ident">event</span>: <span class="ident">Event</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">dispatcher</span>.<span class="ident">event_rx</span>.<span class="ident">try_recv</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">event</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">event</span>,
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Event</span>::<span class="ident">new</span>(<span class="string">&quot;&quot;</span>, <span class="prelude-val">None</span>)
-            };
-            <span class="ident">dispatcher</span>.<span class="ident">handle_event</span>(<span class="ident">event</span>);
-            <span class="ident">thread</span>::<span class="ident">sleep</span>(<span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">1</span>));
-        }
+    <span class="ident">thread</span>::<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {                       
+            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">event</span>) <span class="op">=</span> <span class="ident">dispatcher</span>.<span class="ident">event_rx</span>.<span class="ident">recv</span>() {
+               <span class="ident">dispatcher</span>.<span class="ident">handle_event</span>(<span class="ident">event</span>);
+            } 
+            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Dispatcher exited&quot;</span>);
     })
-
 }
 
 

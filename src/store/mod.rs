@@ -2,7 +2,6 @@ use std::sync::mpsc::{Sender, Receiver, channel};
 use std::thread;
 use std::thread::JoinHandle;
 use std::collections::HashMap;
-use std::time::{Duration};
 use super::gui_tk::GuiState;
 
 //use chrono::format::strftime;
@@ -10,17 +9,11 @@ use super::gui_tk::GuiState;
 
 pub fn run_store(mut store:  Store) -> JoinHandle<()>{
         thread::spawn(move || {
-            loop {
-
-                // lisen for actions
-                match store.action_receiver.try_recv() {
-                    Ok(action) => {
-                        store.reduce(action);
-                    },
-                    Err(_) => ()
-                };
-                thread::sleep(Duration::from_millis(5));
-            }
+            while let Ok(action) = store.action_receiver.recv() {
+                store.reduce(action);
+            }        
+                
+            
         })
 }
 

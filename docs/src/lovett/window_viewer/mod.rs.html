@@ -593,14 +593,6 @@
 <span id="593">593</span>
 <span id="594">594</span>
 <span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">canvas</span>::<span class="ident">Canvas</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">gui_tk</span>::{<span class="ident">Gui</span>,  <span class="ident">Event</span>, <span class="ident">GuiState</span>, <span class="ident">Palette</span>};
@@ -612,7 +604,6 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">JoinHandle</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::{<span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">log</span>::<span class="kw-2">*</span>;
 
 <span class="comment">/*
@@ -635,27 +626,20 @@
     <span class="ident">window_viewer</span>.<span class="ident">initialize</span>();
     <span class="ident">window_viewer</span>.<span class="ident">activate_bar</span>();
     <span class="ident">thread</span>::<span class="ident">spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
-        <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="ident">window_viewer</span>.<span class="ident">input_receiver</span>.<span class="ident">try_recv</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">hid_events</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">for</span> <span class="ident">h_e</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">hid_events</span> {
-                        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;HIDEvent: {:#?}&quot;</span>, <span class="ident">h_e</span>);
-                        <span class="kw">match</span> <span class="ident">window_viewer</span>.<span class="ident">handle_hid_event</span>(<span class="ident">h_e</span>) {
-                            <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="ident">window_viewer</span>.<span class="ident">handle_event</span>(<span class="ident">event</span>);                
-                            },
-                            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> ()
-                        }
-                    }
-                    
-                },
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> ()
-            }
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">hid_events</span>) <span class="op">=</span> <span class="ident">window_viewer</span>.<span class="ident">input_receiver</span>.<span class="ident">recv</span>() {
+            <span class="kw">for</span> <span class="ident">h_e</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">hid_events</span> {
+                <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;HIDEvent: {:#?}&quot;</span>, <span class="ident">h_e</span>);
+                <span class="kw">match</span> <span class="ident">window_viewer</span>.<span class="ident">handle_hid_event</span>(<span class="ident">h_e</span>) {
+                    <span class="prelude-val">Some</span>(<span class="ident">event</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">window_viewer</span>.<span class="ident">handle_event</span>(<span class="ident">event</span>);                
+                    },
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> ()
+                }
+            }   
             <span class="kw">if</span> <span class="ident">window_viewer</span>.<span class="ident">update_bar</span>() 
                 <span class="op">|</span><span class="op">|</span> <span class="ident">window_viewer</span>.<span class="ident">update_active_view</span>() {
                     <span class="ident">window_viewer</span>.<span class="ident">render</span>();
             }
-            <span class="ident">thread</span>::<span class="ident">sleep</span>(<span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">5</span>));
         }
     })
 }

@@ -3,7 +3,6 @@ use std::sync::mpsc::{Sender, Receiver, channel};
 use super::store::Action as Action;
 
 use std::thread;
-use std::time::{Duration};
 use std::thread::JoinHandle;
 
 pub struct Dispatcher {
@@ -14,17 +13,12 @@ pub struct Dispatcher {
 }
 
 pub fn run_dispatcher(mut dispatcher: Dispatcher) -> JoinHandle<()>{
-    thread::spawn(move || {
-        loop {                
-            let event: Event = match dispatcher.event_rx.try_recv() {
-                Ok(event) => event,
-                Err(_) => Event::new("", None)
-            };
-            dispatcher.handle_event(event);
-            thread::sleep(Duration::from_millis(1));
-        }
+    thread::spawn(move || {                       
+            while let Ok(event) = dispatcher.event_rx.recv() {
+               dispatcher.handle_event(event);
+            } 
+            println!("Dispatcher exited");
     })
-
 }
 
 
