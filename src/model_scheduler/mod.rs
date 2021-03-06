@@ -35,11 +35,14 @@ impl ModelScheduler {
 
     pub fn process_state(&mut self, state_vec: Vec<u8>){
         let schedule_fn = self.schedule;
+        schedule_fn(&state_vec, &mut self.models, &mut self.threads);
     }
 
     pub fn register_model(&mut self,  name: &'static str, model: Box<dyn Model + Send>) {
         self.models.insert(name, model);
+        self.threads.insert(name, None);
     }
+
 
 
 }
