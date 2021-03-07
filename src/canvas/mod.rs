@@ -526,6 +526,8 @@ impl Draw for Text {
             self.w = w as i32;
             self.h = h as i32;
             self.img = image; 
+        } else {
+            debug!("update text called with same text content as layer");
         }
     }
  
