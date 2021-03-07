@@ -7,7 +7,7 @@ use super::hid::{HIDEvent, IOState};
 
 use std::thread;
 use std::thread::JoinHandle;
-
+use std::time::{Duration};
 use log::*;
 
 /*
@@ -50,6 +50,7 @@ pub fn run_window_viewer(mut window_viewer: WindowViewer) -> JoinHandle<()>{
             if bar_update || active_update {
                 window_viewer.render();
             }
+            thread::sleep(Duration::from_millis(5));
         }
     })
 }
@@ -136,6 +137,7 @@ impl WindowViewer {
 
     // draw it out
     pub fn render(&mut self) {
+        debug!("Rendering Changes");
         self.canvas.render();
     }
 
@@ -316,21 +318,21 @@ impl View {
         // moving up and down
         let row_count = self.nav_index.len() as isize;
         let attempted_row = self.selected_row as isize + amount;
-        debug!("Trying Row: {}", attempted_row);
+        trace!("Trying Row: {}", attempted_row);
         if attempted_row >= 0 && attempted_row < row_count {
-            debug!(" - Row Exists");
+            trace!(" - Row Exists");
             // the attempted row exists
             let attempted_row_length = self.nav_index[attempted_row as usize].len();
             // does the selected column exist?
             if self.selected_column < attempted_row_length && attempted_row_length > 0 {
-                debug!("   - Current Column exists in this row");
+                trace!("   - Current Column exists in this row");
                 if self.nav_index[attempted_row as usize ][self.selected_column].len() > 0 {
-                    debug!("     - Current Column Has Objects");
+                    trace!("     - Current Column Has Objects");
                     // is there anything in that column?
                     self.selected_row = attempted_row as usize;
                     self.selected_object = self.nav_index[self.selected_row][self.selected_column][0];
                 } else {
-                    debug!("      - Current Column has not objects - check the entire row");
+                    trace!("      - Current Column has not objects - check the entire row");
                     // we move out adding and subtracting till we hit something
                     for offset in 1..attempted_row_length as isize { 
                         // pos
@@ -355,7 +357,7 @@ impl View {
                         } 
                     }
                     if  original_selected_object == self.selected_object {
-                        debug!("     - Row Appears Empty. Let's check the next row in this direction");
+                        trace!("     - Row Appears Empty. Let's check the next row in this direction");
                         // we didn't hit anything recurse
                         if amount > 0 {
                             self.v_move(amount + 1)
@@ -366,7 +368,7 @@ impl View {
                 }
 
             } else if attempted_row_length > 0 { // there is stuff in here but we had hit a column with nothing in it
-                debug!("     - We went to a row with existing columns, but exceeded the column count");
+                trace!("     - We went to a row with existing columns, but exceeded the column count");
                 // go to last column we can
                 // if selected_column was out of bounds // try the greatest column on down to see if we could get anything
                     for attempted_column in (0..attempted_row_length).rev() {
@@ -378,7 +380,7 @@ impl View {
                         }
                     }
                 if  original_selected_object == self.selected_object {
-                    debug!("     - There was still nothing in this row. Try the next row in this direction");
+                    trace!("     - There was still nothing in this row. Try the next row in this direction");
                     if original_selected_object != self.selected_object && amount > 0 {
                         self.v_move(amount + 1)
                     } else if original_selected_object != self.selected_object && amount < 0 {
@@ -386,7 +388,7 @@ impl View {
                     }
                 }
             } else {// nothing in that row we could use... try another row up or down
-                debug!("     - We hit a row with 0 columns, keep moving to the next row");
+                trace!("     - We hit a row with 0 columns, keep moving to the next row");
                 if amount > 0 {
                     self.v_move(amount + 1)
                 } else if amount < 0 {
@@ -516,6 +518,7 @@ impl View {
             Ok(state) => {
                 let update_fn_actor: ViewStateUpdater = self.update_fn;
                 update_fn_actor(&mut self.objects, &state[..], canvas);
+                debug!("Called update on active view -- should mean state changes");
                 true 
             },
             Err(_) => {
