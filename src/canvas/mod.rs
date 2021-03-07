@@ -525,7 +525,9 @@ impl Draw for Text {
             self.img_y = img_y;
             self.w = w as i32;
             self.h = h as i32;
-            self.img = image; 
+            self.img = image;
+            debug!("update text called with new text content");
+
         } else {
             debug!("update text called with same text content as layer");
         }
