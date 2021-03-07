@@ -44,10 +44,11 @@ pub fn run_window_viewer(mut window_viewer: WindowViewer) -> JoinHandle<()>{
                     }
                 },
                 Err(_) => ()
-            } 
-            if window_viewer.update_bar() 
-                || window_viewer.update_active_view() {
-                    window_viewer.render();
+            }
+            let bar_update = window_viewer.update_bar();
+            let active_update = window_viewer.update_active_view();
+            if bar_update || active_update {
+                window_viewer.render();
             }
         }
     })
