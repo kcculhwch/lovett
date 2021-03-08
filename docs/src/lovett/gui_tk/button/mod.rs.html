@@ -195,6 +195,8 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -379,7 +381,9 @@
                     <span class="ident">IOState</span>::<span class="ident">Released</span> <span class="op">=</span><span class="op">&gt;</span> {
                             (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="ident">GuiState</span>::<span class="ident">Selected</span>), <span class="prelude-val">None</span>)
                         },
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="bool-val">false</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
+                    <span class="ident">IOState</span>::<span class="ident">Repeated</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="ident">GuiState</span>::<span class="ident">Clicked</span>), <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">event</span>.<span class="ident">clone</span>()))
+                        },
                 }
             },    
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="bool-val">false</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)

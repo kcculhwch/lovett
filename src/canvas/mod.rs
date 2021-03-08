@@ -47,9 +47,11 @@ impl Canvas {
         for layer in &self.layers {
             if layer.active{
                 layer.item.draw(&mut self.screen);
-                if let Some(text) = layer.item.get_text() {
-                    debug!("Rendering layer with text {}", text);
-                }
+                 if log_enabled!(Trace) {
+                    if let Some(text) = layer.item.get_text() {
+                        trace!("Rendering layer with text {}", text);
+                    }   
+                }    
             }
         }
         self.screen.flush();
@@ -112,7 +114,7 @@ impl Canvas {
         }
 
         for i in to_return.iter().rev() {
-            debug!("Remove Layer: {}", i);
+            trace!("Remove Layer: {}", i);
             result.push(self.layers.remove(*i));
         }
        
@@ -532,10 +534,10 @@ impl Draw for Text {
             self.w = w as i32;
             self.h = h as i32;
             self.img = image;
-            debug!("update text called with new text content");
+            trace!("update text called with new text content");
 
         } else {
-            debug!("update text called with same text content as layer");
+            trace!("update text called with same text content as layer");
         }
     }
 

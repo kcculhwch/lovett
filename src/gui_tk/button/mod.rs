@@ -181,7 +181,9 @@ impl Gui for Button {
                     IOState::Released => {
                             (true, Some(GuiState::Selected), None)
                         },
-                    _ => (false, None, None)
+                    IOState::Repeated => {
+                            (false, Some(GuiState::Clicked), Some(self.event.clone()))
+                        },
                 }
             },    
             _ => (false, None, None)

@@ -599,6 +599,9 @@
 <span id="599">599</span>
 <span id="600">600</span>
 <span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">canvas</span>::<span class="ident">Canvas</span>;
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">gui_tk</span>::{<span class="ident">Gui</span>,  <span class="ident">Event</span>, <span class="ident">GuiState</span>, <span class="ident">Palette</span>};
@@ -609,7 +612,7 @@
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">JoinHandle</span>;
-
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::{<span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">log</span>::<span class="kw-2">*</span>;
 
 <span class="comment">/*
@@ -652,6 +655,7 @@
             <span class="kw">if</span> <span class="ident">bar_update</span> <span class="op">|</span><span class="op">|</span> <span class="ident">active_update</span> {
                 <span class="ident">window_viewer</span>.<span class="ident">render</span>();
             }
+            <span class="ident">thread</span>::<span class="ident">sleep</span>(<span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">5</span>));
         }
     })
 }
@@ -738,6 +742,7 @@
 
     <span class="comment">// draw it out</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Rendering Changes&quot;</span>);
         <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">render</span>();
     }
 
@@ -918,21 +923,21 @@
         <span class="comment">// moving up and down</span>
         <span class="kw">let</span> <span class="ident">row_count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nav_index</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">isize</span>;
         <span class="kw">let</span> <span class="ident">attempted_row</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selected_row</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="ident">amount</span>;
-        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Trying Row: {}&quot;</span>, <span class="ident">attempted_row</span>);
+        <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Trying Row: {}&quot;</span>, <span class="ident">attempted_row</span>);
         <span class="kw">if</span> <span class="ident">attempted_row</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">attempted_row</span> <span class="op">&lt;</span> <span class="ident">row_count</span> {
-            <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot; - Row Exists&quot;</span>);
+            <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot; - Row Exists&quot;</span>);
             <span class="comment">// the attempted row exists</span>
             <span class="kw">let</span> <span class="ident">attempted_row_length</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nav_index</span>[<span class="ident">attempted_row</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">len</span>();
             <span class="comment">// does the selected column exist?</span>
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected_column</span> <span class="op">&lt;</span> <span class="ident">attempted_row_length</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">attempted_row_length</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;   - Current Column exists in this row&quot;</span>);
+                <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;   - Current Column exists in this row&quot;</span>);
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">nav_index</span>[<span class="ident">attempted_row</span> <span class="kw">as</span> <span class="ident">usize</span> ][<span class="self">self</span>.<span class="ident">selected_column</span>].<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> {
-                    <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;     - Current Column Has Objects&quot;</span>);
+                    <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;     - Current Column Has Objects&quot;</span>);
                     <span class="comment">// is there anything in that column?</span>
                     <span class="self">self</span>.<span class="ident">selected_row</span> <span class="op">=</span> <span class="ident">attempted_row</span> <span class="kw">as</span> <span class="ident">usize</span>;
                     <span class="self">self</span>.<span class="ident">selected_object</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nav_index</span>[<span class="self">self</span>.<span class="ident">selected_row</span>][<span class="self">self</span>.<span class="ident">selected_column</span>][<span class="number">0</span>];
                 } <span class="kw">else</span> {
-                    <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;      - Current Column has not objects - check the entire row&quot;</span>);
+                    <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;      - Current Column has not objects - check the entire row&quot;</span>);
                     <span class="comment">// we move out adding and subtracting till we hit something</span>
                     <span class="kw">for</span> <span class="ident">offset</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">attempted_row_length</span> <span class="kw">as</span> <span class="ident">isize</span> { 
                         <span class="comment">// pos</span>
@@ -957,7 +962,7 @@
                         } 
                     }
                     <span class="kw">if</span>  <span class="ident">original_selected_object</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">selected_object</span> {
-                        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;     - Row Appears Empty. Let&#39;s check the next row in this direction&quot;</span>);
+                        <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;     - Row Appears Empty. Let&#39;s check the next row in this direction&quot;</span>);
                         <span class="comment">// we didn&#39;t hit anything recurse</span>
                         <span class="kw">if</span> <span class="ident">amount</span> <span class="op">&gt;</span> <span class="number">0</span> {
                             <span class="self">self</span>.<span class="ident">v_move</span>(<span class="ident">amount</span> <span class="op">+</span> <span class="number">1</span>)
@@ -968,7 +973,7 @@
                 }
 
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">attempted_row_length</span> <span class="op">&gt;</span> <span class="number">0</span> { <span class="comment">// there is stuff in here but we had hit a column with nothing in it</span>
-                <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;     - We went to a row with existing columns, but exceeded the column count&quot;</span>);
+                <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;     - We went to a row with existing columns, but exceeded the column count&quot;</span>);
                 <span class="comment">// go to last column we can</span>
                 <span class="comment">// if selected_column was out of bounds // try the greatest column on down to see if we could get anything</span>
                     <span class="kw">for</span> <span class="ident">attempted_column</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="ident">attempted_row_length</span>).<span class="ident">rev</span>() {
@@ -980,7 +985,7 @@
                         }
                     }
                 <span class="kw">if</span>  <span class="ident">original_selected_object</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">selected_object</span> {
-                    <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;     - There was still nothing in this row. Try the next row in this direction&quot;</span>);
+                    <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;     - There was still nothing in this row. Try the next row in this direction&quot;</span>);
                     <span class="kw">if</span> <span class="ident">original_selected_object</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">selected_object</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">amount</span> <span class="op">&gt;</span> <span class="number">0</span> {
                         <span class="self">self</span>.<span class="ident">v_move</span>(<span class="ident">amount</span> <span class="op">+</span> <span class="number">1</span>)
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">original_selected_object</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">selected_object</span> <span class="kw-2">&amp;</span><span class="op">&amp;</span> <span class="ident">amount</span> <span class="op">&lt;</span> <span class="number">0</span> {
@@ -988,7 +993,7 @@
                     }
                 }
             } <span class="kw">else</span> {<span class="comment">// nothing in that row we could use... try another row up or down</span>
-                <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;     - We hit a row with 0 columns, keep moving to the next row&quot;</span>);
+                <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;     - We hit a row with 0 columns, keep moving to the next row&quot;</span>);
                 <span class="kw">if</span> <span class="ident">amount</span> <span class="op">&gt;</span> <span class="number">0</span> {
                     <span class="self">self</span>.<span class="ident">v_move</span>(<span class="ident">amount</span> <span class="op">+</span> <span class="number">1</span>)
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">amount</span> <span class="op">&lt;</span> <span class="number">0</span> {
@@ -1118,6 +1123,7 @@
             <span class="prelude-val">Ok</span>(<span class="ident">state</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">update_fn_actor</span>: <span class="ident">ViewStateUpdater</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">update_fn</span>;
                 <span class="ident">update_fn_actor</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">objects</span>, <span class="kw-2">&amp;</span><span class="ident">state</span>[..], <span class="ident">canvas</span>);
+                <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Called update on active view -- should mean state changes&quot;</span>);
                 <span class="bool-val">true</span> 
             },
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
