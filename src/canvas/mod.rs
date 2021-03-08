@@ -525,8 +525,8 @@ impl Draw for Text {
     }
     fn update_text(&mut self, new_content: String) {
         if new_content != self.content {
-            let (image, img_x, img_y, w, h) = Text::layout_string(self.x, self.y, &self.color, &self.font, &self.content, &self.scale,  self.padding, &mut self.draw_cache, &mut self.texture);
             self.content = new_content;
+            let (image, img_x, img_y, w, h) = Text::layout_string(self.x, self.y, &self.color, &self.font, &self.content, &self.scale,  self.padding, &mut self.draw_cache, &mut self.texture);
             self.img_x = img_x;
             self.img_y = img_y;
             self.w = w as i32;
