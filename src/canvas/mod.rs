@@ -47,6 +47,9 @@ impl Canvas {
         for layer in &self.layers {
             if layer.active{
                 layer.item.draw(&mut self.screen);
+                if let Some(text) = layer.item.get_text() {
+                    debug!("Rendering layer with text {}", text);
+                }
             }
         }
         self.screen.flush();
@@ -126,6 +129,9 @@ pub trait Draw {
     fn update_text(&mut self, text: String){
         
     } 
+    fn get_text(&self) -> Option<String> {
+        None
+    }
 }
 
 
@@ -532,7 +538,10 @@ impl Draw for Text {
             debug!("update text called with same text content as layer");
         }
     }
- 
+
+    fn get_text(&self) -> Option<String> {
+        Some(self.content.to_string())
+    } 
 }
 
 pub fn adjust_img_loc(pt: i32, img_pt: u32, max: u32) -> u32 {
