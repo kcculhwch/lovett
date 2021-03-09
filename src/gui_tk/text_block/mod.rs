@@ -65,7 +65,7 @@ impl TextBlock {
         let palette = Palette::new();
         
         // basic background box
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Antic_Slab/AnticSlab-Regular.ttf",  palette.base_text.clone(), 2),);
+        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Nanum_Gothic/NanumGothic-Regular.ttf",  palette.base_text.clone(), 2),);
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
@@ -76,7 +76,7 @@ impl TextBlock {
         self.layers.push(text_layer);
 
         // Clicked background box
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Antic_Slab/AnticSlab-Regular.ttf",  palette.clicked_text.clone(), 2),);
+        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Nanum_Gothic/NanumGothic-Regular.ttf",  palette.clicked_text.clone(), 2),);
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
@@ -87,7 +87,7 @@ impl TextBlock {
         self.layers.push(text_layer);
 
         // Selected background box
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Antic_Slab/AnticSlab-Regular.ttf",  palette.selected_text.clone(), 2),);
+        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Nanum_Gothic/NanumGothic-Regular.ttf",  palette.selected_text.clone(), 2),);
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
