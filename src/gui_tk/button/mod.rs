@@ -15,13 +15,16 @@ pub struct Button {
     pub y: i32,
     pub w: i32,
     pub h: i32,
+    pub text_x: i32,
+    pub text_y: i32,
+    pub text_h: i32,
     pub gui_state: GuiState,
     config: &'static GuiConfig
 }
 
 #[allow(dead_code)]
 impl Button {
-    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, event: Event, config: &'static GuiConfig) -> Button {
+    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, text_x: i32, text_y: i32, text_h: i32, event: Event, config: &'static GuiConfig) -> Button {
         let uuid_string = Uuid::new_v4().to_hyphenated().to_string();
         let name = format!("Button - {}", uuid_string); 
 
@@ -45,6 +48,9 @@ impl Button {
             y,
             w,
             h,
+            text_x,
+            text_y,
+            text_h,
             gui_state,
             config
         };
@@ -96,9 +102,9 @@ impl Button {
         );
         let mut text: Box<Text> = Box::new(
             Text::new(
-                self.x, 
-                self.y, 
-                self.h as f32, 
+                self.x + self.text_x, 
+                self.y + self.text_y, 
+                self.text_h as f32, 
                 self.text.clone(), 
                 &self.config.font,  
                 self.config.palette.base_text.clone(), 
@@ -151,9 +157,9 @@ impl Button {
         );
         let mut text: Box<Text> = Box::new(
             Text::new(
-                self.x, 
-                self.y, 
-                self.h as f32, 
+                self.x + self.text_x, 
+                self.y + self.text_y, 
+                self.text_h as f32, 
                 self.text.clone(), 
                 &self.config.font, 
                 self.config.palette.clicked_text.clone(), 
@@ -201,9 +207,9 @@ impl Button {
         );
         let mut text: Box<Text> = Box::new(
             Text::new(
-                self.x, 
-                self.y, 
-                self.h as f32, 
+                self.x + self.text_x, 
+                self.y + self.text_y, 
+                self.text_h as f32, 
                 self.text.clone(), 
                 &self.config.font,  
                 self.config.palette.selected_text.clone(), 
