@@ -14,12 +14,13 @@ pub struct Block {
     pub y: i32,
     pub w: i32,
     pub h: i32,
-    pub gui_state: GuiState
+    pub gui_state: GuiState,
+    config: &'static GuiConfig
 }
 
 #[allow(dead_code)]
 impl Block {
-    pub fn new(x: i32, y: i32, w: i32, h: i32, event: Event) -> Block {
+    pub fn new(x: i32, y: i32, w: i32, h: i32, event: Event, config: &'static GuiConfig) -> Block {
         let uuid_string = Uuid::new_v4().to_hyphenated().to_string();
         let name = format!("Block - {}", uuid_string); 
 
@@ -42,7 +43,8 @@ impl Block {
             y,
             w,
             h,
-            gui_state
+            gui_state,
+            config
         };
         block.gen_layers();
         block
@@ -60,18 +62,56 @@ impl Block {
     }
 
     pub fn gen_layers(&mut self)  {
-        let palette = Palette::new();
         
         // basic background box
-        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, true, palette.base_background.clone())), true, self.regular_name.clone());
+        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(
+            Box::new(
+                Rect::new(
+                        self.x,
+                        self.y, 
+                        self.w, 
+                        self.h, 
+                        true, 
+                        self.config.palette.base_background.clone()
+                )
+            ), 
+            true, 
+            self.regular_name.clone()
+        );
         self.layers.push(bg);
 
         // Clicked background box
-        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, true, palette.clicked_background.clone())), false, self.clicked_name.clone());
+        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(
+            Box::new(
+                Rect::new(
+                    self.x, 
+                    self.y, 
+                    self.w, 
+                    self.h, 
+                    true, 
+                    self.config.palette.clicked_background.clone()
+                )
+            ), 
+            false, 
+            self.clicked_name.clone()
+        );
         self.layers.push(bg);
 
         // Selected background box
-        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, true, palette.selected_background.clone())), false, self.selected_name.clone());
+        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(
+            Box::new(
+                Rect::new(
+                    self.x, 
+                    self.y, 
+                    self.w, 
+                    self.h, 
+                    true, 
+                    self.config.palette.selected_background.clone()
+                )
+            ), 
+            false, 
+            self.selected_name.clone()
+        );
         self.layers.push(bg);
         debug!("Copied Layers to canvas for {}", self.name);
     }

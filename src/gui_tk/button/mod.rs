@@ -16,12 +16,12 @@ pub struct Button {
     pub w: i32,
     pub h: i32,
     pub gui_state: GuiState,
-    pub font: &'static FontVec
+    config: &'static GuiConfig
 }
 
 #[allow(dead_code)]
 impl Button {
-    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, event: Event, font: &'static FontVec) -> Button {
+    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, event: Event, config: &'static GuiConfig) -> Button {
         let uuid_string = Uuid::new_v4().to_hyphenated().to_string();
         let name = format!("Button - {}", uuid_string); 
 
@@ -46,7 +46,7 @@ impl Button {
             w,
             h,
             gui_state,
-            font
+            config
         };
         button.gen_layers();
         button
@@ -64,27 +64,101 @@ impl Button {
     }
 
     pub fn gen_layers(&mut self)  {
-        let palette = Palette::new();
         
         // basic background box
-        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, true, palette.base_background.clone())), true, self.regular_name.clone());
-        let outline: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, false, palette.base.clone())), true, self.regular_name.clone());
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), self.font,  palette.base_text.clone(), 2),);
+        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(
+            Box::new(
+                Rect::new(
+                    self.x,
+                    self.y, 
+                    self.w, 
+                    self.h, 
+                    true, 
+                    self.config.palette.base_background.clone()
+                )
+            ), 
+            true, 
+            self.regular_name.clone()
+        );
+        let outline: Layer<Box<dyn Draw + Send>> = Layer::new(
+            Box::new(
+                Rect::new(
+                    self.x, 
+                    self.y, 
+                    self.w, 
+                    self.h, 
+                    false, 
+                    self.config.palette.base.clone()
+                )
+            ), 
+            true, 
+            self.regular_name.clone()
+        );
+        let mut text: Box<Text> = Box::new(
+            Text::new(
+                self.x, 
+                self.y, 
+                self.h as f32, 
+                self.text.clone(), 
+                &self.config.font,  
+                self.config.palette.base_text.clone(), 
+                2
+            )
+        );
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
             text.x = self.x + x_offset;
         }
-        let text_layer: Layer<Box<dyn Draw + Send>> = Layer::new(text, true, self.regular_name.clone()); 
+        let text_layer: Layer<Box<dyn Draw + Send>> = Layer::new(
+            text, 
+            true, 
+            self.regular_name.clone()
+        ); 
 
         self.layers.push(bg);
         self.layers.push(outline);
         self.layers.push(text_layer);
 
         // Clicked background box
-        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, true, palette.clicked_background.clone())), false, self.clicked_name.clone());
-        let outline: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, false, palette.clicked.clone())), false, self.clicked_name.clone());
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), self.font, palette.clicked_text.clone(), 2),);
+        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(
+            Box::new(
+                Rect::new(
+                    self.x, 
+                    self.y, 
+                    self.w, 
+                    self.h, 
+                    true,
+                    self.config.palette.clicked_background.clone()
+                )
+            ), 
+            false, 
+            self.clicked_name.clone()
+        );
+        let outline: Layer<Box<dyn Draw + Send>> = Layer::new(
+            Box::new(
+                Rect::new(
+                    self.x, 
+                    self.y, 
+                    self.w, 
+                    self.h, 
+                    false, 
+                    self.config.palette.clicked.clone()
+                )
+            ), 
+            false, 
+            self.clicked_name.clone()
+        );
+        let mut text: Box<Text> = Box::new(
+            Text::new(
+                self.x, 
+                self.y, 
+                self.h as f32, 
+                self.text.clone(), 
+                &self.config.font, 
+                self.config.palette.clicked_text.clone(), 
+            2)
+        );
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
@@ -97,9 +171,45 @@ impl Button {
         self.layers.push(text_layer);
 
         // Selected background box
-        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, true, palette.selected_background.clone())), false, self.selected_name.clone());
-        let outline: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, false, palette.selected.clone())), false, self.selected_name.clone());
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), self.font,  palette.selected_text.clone(), 2),);
+        let bg: Layer<Box<dyn Draw + Send>> = Layer::new(
+            Box::new(
+                Rect::new(
+                    self.x, 
+                    self.y, 
+                    self.w, 
+                    self.h, 
+                    true, 
+                    self.config.palette.selected_background.clone()
+                )
+            ), 
+            false, 
+            self.selected_name.clone()
+        );
+        let outline: Layer<Box<dyn Draw + Send>> = Layer::new(
+            Box::new(
+                Rect::new(
+                    self.x, 
+                    self.y, 
+                    self.w, 
+                    self.h, 
+                    false, 
+                    self.config.palette.selected.clone()
+                )
+            ), 
+            false, 
+            self.selected_name.clone()
+        );
+        let mut text: Box<Text> = Box::new(
+            Text::new(
+                self.x, 
+                self.y, 
+                self.h as f32, 
+                self.text.clone(), 
+                &self.config.font,  
+                self.config.palette.selected_text.clone(), 
+                2
+            )
+        );
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
@@ -194,8 +304,4 @@ impl Gui for Button {
         // true // returns back to view input handle
         // false // keeps input mode here
     }
-
-
 }
-
-

@@ -22,6 +22,8 @@ pub use text_block::*;
 use glyph_brush_layout::*;
 use ab_glyph::*;
 
+mod gui_config;
+pub use gui_config::*;
 
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -48,20 +50,34 @@ pub struct Palette {
 
 }
 
+#[allow(dead_code)]
 impl Palette {
-    fn new() -> Palette {
+    fn new(
+        base: Color, 
+        base_text: Color, 
+        base_background: Color,
+
+        selected: Color, 
+        selected_text: Color, 
+        selected_background: Color,
+
+        clicked: Color, 
+        clicked_text: Color, 
+        clicked_background: Color
+
+    ) -> Palette {
         Palette {
-            base: Color::new(78, 156, 183),
-            base_text: Color::new(255, 255, 255),
-            base_background: Color::new(30, 50, 50),
+            base,
+            base_text,
+            base_background,
 
-            selected: Color::new(78, 156, 183),
-            selected_text: Color::new(255, 255, 255),
-            selected_background: Color::new(60, 100, 100),
+            selected,
+            selected_text,
+            selected_background,
 
-            clicked: Color::new(160, 255, 255),
-            clicked_text: Color::new(0, 0, 0),
-            clicked_background: Color::new(120, 200, 200),
+            clicked,
+            clicked_text,
+            clicked_background,
         }
     }
 }
