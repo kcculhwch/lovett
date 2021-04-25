@@ -2,15 +2,14 @@
 use super::fb::FB;
 use super::fb::Color;
 use image::{DynamicImage, Rgba }; // rgba is used internally by rusttype and image
-//use rusttype::{point, Font, Scale};
-use std::fs::File;
-use std::io::Read;
 use glyph_brush_layout::*;
 use ab_glyph::*;
 use glyph_brush_draw_cache::{DrawCache, Rectangle};
 // Layer
 use log::*;
 use log::Level::*;
+
+pub mod font;
 
 #[derive(Clone, Debug)]
 pub struct Layer<T> {
@@ -313,7 +312,7 @@ pub struct Text {
     pub w: i32,
     pub h: i32, 
     content: String,
-    font: FontVec,
+    font: &'static FontVec,
     scale: PxScale,
     color: Color,
     img: DynamicImage, // we store the actual rasterized text here and enough to rerasterize later
@@ -326,15 +325,11 @@ pub struct Text {
 }
 
 impl Text {
-    pub fn new(x: i32, y: i32, size: f32, content: String, font: &'static str, color: Color, padding: u32) -> Text {
-        let mut file = File::open(font).expect("Font File Not Found");
-        let mut font_data: Vec<u8> = vec![];
-        file.read_to_end(&mut font_data).expect("Unable to Read Font File");
+    pub fn new(x: i32, y: i32, size: f32, content: String, font: &'static FontVec, color: Color, padding: u32) -> Text {
         let mut draw_cache = DrawCache::builder().build();
-        let font = FontVec::try_from_vec(font_data).unwrap();
         let scale = PxScale::from(size);
         let mut texture: Vec<u8> = vec![0; 256 * 256];
-        let (image, img_x, img_y, w, h) = Text::layout_string(x, y, &color, &font, &content, &scale, padding, &mut draw_cache, &mut texture);
+        let (image, img_x, img_y, w, h) = Text::layout_string(x, y, &color, font, &content, &scale, padding, &mut draw_cache, &mut texture);
         Text {
             x, y, w: w as i32, h: h as i32, content, scale, color, img: image, font, img_x, img_y, padding, draw_cache, texture
         }

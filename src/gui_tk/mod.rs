@@ -19,6 +19,9 @@ pub use block::*;
 mod text_block;
 #[allow(unused_imports)]
 pub use text_block::*;
+use glyph_brush_layout::*;
+use ab_glyph::*;
+
 
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

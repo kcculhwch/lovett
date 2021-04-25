@@ -15,12 +15,13 @@ pub struct Button {
     pub y: i32,
     pub w: i32,
     pub h: i32,
-    pub gui_state: GuiState
+    pub gui_state: GuiState,
+    pub font: &'static FontVec
 }
 
 #[allow(dead_code)]
 impl Button {
-    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, event: Event) -> Button {
+    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, event: Event, font: &'static FontVec) -> Button {
         let uuid_string = Uuid::new_v4().to_hyphenated().to_string();
         let name = format!("Button - {}", uuid_string); 
 
@@ -44,7 +45,8 @@ impl Button {
             y,
             w,
             h,
-            gui_state
+            gui_state,
+            font
         };
         button.gen_layers();
         button
@@ -67,7 +69,7 @@ impl Button {
         // basic background box
         let bg: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, true, palette.base_background.clone())), true, self.regular_name.clone());
         let outline: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, false, palette.base.clone())), true, self.regular_name.clone());
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Nanum_Gothic/NanumGothic-Regular.ttf",  palette.base_text.clone(), 2),);
+        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), self.font,  palette.base_text.clone(), 2),);
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
@@ -82,7 +84,7 @@ impl Button {
         // Clicked background box
         let bg: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, true, palette.clicked_background.clone())), false, self.clicked_name.clone());
         let outline: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, false, palette.clicked.clone())), false, self.clicked_name.clone());
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Nanum_Gothic/NanumGothic-Regular.ttf",  palette.clicked_text.clone(), 2),);
+        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), self.font, palette.clicked_text.clone(), 2),);
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
@@ -97,7 +99,7 @@ impl Button {
         // Selected background box
         let bg: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, true, palette.selected_background.clone())), false, self.selected_name.clone());
         let outline: Layer<Box<dyn Draw + Send>> = Layer::new(Box::new(Rect::new(self.x, self.y, self.w, self.h, false, palette.selected.clone())), false, self.selected_name.clone());
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Nanum_Gothic/NanumGothic-Regular.ttf",  palette.selected_text.clone(), 2),);
+        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), self.font,  palette.selected_text.clone(), 2),);
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;

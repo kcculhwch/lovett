@@ -15,12 +15,13 @@ pub struct TextBlock {
     pub y: i32,
     pub w: i32,
     pub h: i32,
-    pub gui_state: GuiState
+    pub gui_state: GuiState,
+    pub font: &'static FontVec
 }
 
 #[allow(dead_code)]
 impl TextBlock {
-    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, event: Event) -> TextBlock {
+    pub fn new(text: String, x: i32, y: i32, w: i32, h: i32, event: Event, font: &'static FontVec) -> TextBlock {
         let uuid_string = Uuid::new_v4().to_hyphenated().to_string();
         let name = format!("TextBlock - {}", uuid_string); 
 
@@ -44,7 +45,8 @@ impl TextBlock {
             y,
             w,
             h,
-            gui_state
+            gui_state,
+            font
         };
         button.gen_layers();
         button
@@ -65,7 +67,7 @@ impl TextBlock {
         let palette = Palette::new();
         
         // basic background box
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Nanum_Gothic/NanumGothic-Regular.ttf",  palette.base_text.clone(), 2),);
+        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), self.font,  palette.base_text.clone(), 2),);
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
@@ -76,7 +78,7 @@ impl TextBlock {
         self.layers.push(text_layer);
 
         // Clicked background box
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Nanum_Gothic/NanumGothic-Regular.ttf",  palette.clicked_text.clone(), 2),);
+        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), self.font,  palette.clicked_text.clone(), 2),);
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
@@ -87,7 +89,7 @@ impl TextBlock {
         self.layers.push(text_layer);
 
         // Selected background box
-        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), "./assets/fonts/Nanum_Gothic/NanumGothic-Regular.ttf",  palette.selected_text.clone(), 2),);
+        let mut text: Box<Text> = Box::new(Text::new(self.x, self.y, self.h as f32, self.text.clone(), self.font,  palette.selected_text.clone(), 2),);
         let text_width = text.w;
         if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
