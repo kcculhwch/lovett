@@ -159,7 +159,7 @@ impl Button {
         );
         let mut text: Box<Text> = Box::new(
             Text::new(
-                self.x + self.text_x, 
+                self.x, 
                 self.y + self.text_y, 
                 self.text_h as f32, 
                 self.text.clone(), 
@@ -168,7 +168,9 @@ impl Button {
             2)
         );
         let text_width = text.w;
-        if text_width < self.w {
+        if self.text_x > 0 {
+            text.x += self.text_x;
+        } else if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
             text.x = self.x + x_offset;
         }
@@ -209,7 +211,7 @@ impl Button {
         );
         let mut text: Box<Text> = Box::new(
             Text::new(
-                self.x + self.text_x, 
+                self.x, 
                 self.y + self.text_y, 
                 self.text_h as f32, 
                 self.text.clone(), 
@@ -219,7 +221,9 @@ impl Button {
             )
         );
         let text_width = text.w;
-        if text_width < self.w {
+        if self.text_x > 0 {
+            text.x += self.text_x;
+        } else if text_width < self.w {
             let x_offset = (self.w - text_width) / 2;
             text.x = self.x + x_offset;
         }
