@@ -243,7 +243,7 @@ extern crate framebuffer;
 extern crate image;
 extern crate serde;
 extern crate bincode;
-
+extern crate glyph_brush_layout;
 
 // Modules
 pub mod hid;
