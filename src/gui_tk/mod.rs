@@ -52,7 +52,7 @@ pub struct Palette {
 
 #[allow(dead_code)]
 impl Palette {
-    fn new(
+    pub fn new(
         base: Color, 
         base_text: Color, 
         base_background: Color,
