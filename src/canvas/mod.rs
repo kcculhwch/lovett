@@ -9,7 +9,6 @@ use glyph_brush_draw_cache::{DrawCache, Rectangle};
 use log::*;
 use log::Level::*;
 
-pub mod font;
 
 #[derive(Clone, Debug)]
 pub struct Layer<T> {
