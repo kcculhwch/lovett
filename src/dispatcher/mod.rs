@@ -37,8 +37,10 @@ impl Dispatcher {
 
     pub fn handle_event(&mut self, event: Event) -> bool{
         match self.handler.handle_event(event) {
-            Some(action) => {
-                self.action_tx.send(action).unwrap();
+            Some(mut actions) => {
+                let u: Vec<_> = actions.drain(..).map( |x| self.action_tx.send(x).unwrap()).collect();
+                // I suppose we could iterate through u to provide a more correct boolean result
+                drop(u);
                 true
             },
             _ => false
@@ -53,7 +55,7 @@ impl Dispatcher {
 
 
 pub trait Dispatch {
-    fn handle_event(&self, event: Event) -> Option<Action>;
+    fn handle_event(&self, event: Event) -> Option<Vec<Action>>;
 }
 
 
