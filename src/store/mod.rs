@@ -65,7 +65,7 @@ impl Store {
 
     pub fn reduce(&mut self, action: Action) -> bool{
         //
-        let mutated = match self.reducers.get(action.name) {
+        let reduced = match self.reducers.get(action.name) {
             Some(reducer_fn) =>  {
                 let reducer: Reducer = *reducer_fn;
                 
@@ -84,7 +84,7 @@ impl Store {
             }
             
         };
-        mutated
+        reduced
     }
 }
 

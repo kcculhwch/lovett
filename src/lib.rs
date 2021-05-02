@@ -138,9 +138,9 @@
 //!        };
 //!```
 //!
-//!#### setup State 
+//!#### setup Store
 //!
-//!Create the store holder. (This still has way to much specific stuff in it)
+//!Define the State Object for the Store to manage.
 //!
 //!* `state/mod.rd` Define the Struct that will represent your program state
 //!
@@ -157,14 +157,14 @@
 //!
 //!#[derive(Clone, Debug, Serialize, Deserialize)]
 //!pub struct State {
-//!    example: String,
-//!    ...
+//!    example: String
 //!}
 //!
 //!
 //!impl State {
 //!    pub fn new() -> State {
-//!...
+//!
+//!    }
 //!}
 //!```
 //!* state/reducers/mod.rs Define the reducer functions that will be triggered
