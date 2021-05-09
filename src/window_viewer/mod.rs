@@ -219,36 +219,8 @@ pub type ViewStateUpdater = fn(&mut  Vec<Box<dyn Gui + Send>>, &[u8], &mut Canva
 impl View {
     pub fn new(update_fn: ViewStateUpdater, state_receiver: Receiver<Vec<u8>>) -> View {
         let objects: Vec<Box<dyn Gui + Send>> = vec![];
-        let nav_index: Vec<Vec<Vec<usize>>> = vec![
-                                                      vec![
-                                                            vec![], vec![], vec![], vec![],
-                                                          ],
-                                                      vec![
-                                                            vec![], vec![], vec![], vec![],
-                                                          ],
-                                                      vec![
-                                                            vec![], vec![], vec![], vec![],
-                                                          ],
-                                                      vec![
-                                                            vec![], vec![], vec![], vec![],
-                                                          ],
-                                                      vec![
-                                                            vec![], vec![], vec![], vec![],
-                                                          ],
-                                                      vec![
-                                                            vec![], vec![], vec![], vec![],
-                                                          ],
-                                                      vec![
-                                                            vec![], vec![], vec![], vec![],
-                                                          ],
-                                                      vec![
-                                                            vec![], vec![], vec![], vec![],
-                                                          ]
+        let nav_index: Vec<Vec<Vec<usize>>> = vec![vec![vec![0;0]; 4]; 16];
 
-
-
-
-                                                    ];
         let selected_row = 0;
         let selected_column = 0;
         let selected_object =  0;   
