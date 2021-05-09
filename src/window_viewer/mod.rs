@@ -481,13 +481,29 @@ impl View {
         if self.objects.len() > 0 {
             self.selected_object = 0;
             // find what cell that object is in
-            self.selected_column = 0;
-            self.selected_row = 0;
+            let (r_index, c_index) = self.find_selected_object_coords();
+            self.selected_row = r_index;
+            self.selected_column = c_index;
             self.move_selection();
         }
         true
        // all objects 
     }
+
+    #[allow(dead_code)]
+    fn find_selected_object_coords(&self) -> (usize, usize) {
+        for (r_index, row) in self.nav_index.iter().enumerate() {
+            for (c_index, column) in row.iter().enumerate() {
+                for item in column {
+                    if item == &self.selected_object {
+                        return (r_index, c_index)
+                    }
+                }
+            }
+        }
+        (0,0)
+    }
+
     fn update(&mut self, canvas: &mut Canvas) -> bool {
         // if the view's gui is not yet in sync
         let mut gui_state_updated = false;
