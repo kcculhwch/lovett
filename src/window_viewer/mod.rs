@@ -47,7 +47,8 @@ pub fn run_window_viewer(mut window_viewer: WindowViewer) -> JoinHandle<()>{
             }
             let bar_update = window_viewer.update_bar();
             let active_update = window_viewer.update_active_view();
-            if bar_update || active_update {
+            let view_change = window_viewer.window_viewer_updater();
+            if bar_update || active_update || view_change {
                 window_viewer.render();
             }
             thread::sleep(Duration::from_millis(5));
@@ -96,11 +97,13 @@ pub struct WindowViewer {
     active: usize,
     canvas: Canvas,
     input_receiver: Receiver<Vec<HIDEvent>>,
-    event_sender: Sender<Event>
+    event_sender: Sender<Event>,
+    state_receiver: Receiver<Vec<u8>>,
+    window_viewer_updater_fn: WindowViewerUpdater
 }
 
 impl WindowViewer {
-    pub fn new(fbdev: &'static str,  input_receiver: Receiver<Vec<HIDEvent>>, event_sender: Sender<Event>, info_bar_view: View) -> WindowViewer {
+    pub fn new(fbdev: &'static str,  input_receiver: Receiver<Vec<HIDEvent>>, event_sender: Sender<Event>, state_receiver: Receiver<Vec<u8>>, window_viewer_updater_fn: WindowViewerUpdater, info_bar_view: View) -> WindowViewer {
         let canvas: Canvas = Canvas::new(fbdev);
         WindowViewer {
             bar: info_bar_view,
@@ -108,7 +111,9 @@ impl WindowViewer {
             canvas: canvas,
             active: 0,
             input_receiver,
-            event_sender
+            event_sender,
+            state_receiver,
+            window_viewer_updater_fn
         }
     }
     pub fn initialize(&mut self) {
@@ -117,6 +122,17 @@ impl WindowViewer {
             self.views[i].initialize(&mut self.canvas);
         }
     }
+
+    pub fn window_viewer_updater(&mut self) -> bool {
+         match self.state_receiver.try_recv() {
+            Ok(state) => {
+                let update_fn: WindowViewerUpdater = self.window_viewer_updater_fn;
+                update_fn(self, &state[..])
+            },
+            Err(_) => (false)
+        }
+    }
+
 
     // input button handling
     pub fn handle_hid_event(&mut self, h_e: &HIDEvent) -> Option<Event>{
@@ -213,6 +229,8 @@ pub struct View {
     gui_state: Vec<GuiState>,
     stale: bool
 }
+
+pub type WindowViewerUpdater = fn(&mut WindowViewer, &[u8]) -> bool;
   
 pub type ViewStateUpdater = fn(&mut  Vec<Box<dyn Gui + Send>>, &[u8], &mut Canvas );
 
