@@ -94,7 +94,7 @@ pub struct ViewSettings {
 pub struct WindowViewer {
     bar: View,
     views: Vec<Box<View>>,
-    active: usize,
+    pub active: usize,
     canvas: Canvas,
     input_receiver: Receiver<Vec<HIDEvent>>,
     event_sender: Sender<Event>,
