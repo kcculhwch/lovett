@@ -194,9 +194,9 @@ impl WindowViewer {
             panic!("Cannot activate a view which does not exist");
         }
         for i in (0 as usize)..self.views.len() {
-            if i == view{
-               self.active = view;
-               self.views[self.active].activate(&mut self.canvas);
+            if i == view {
+                self.active = view;
+                self.views[self.active].activate(&mut self.canvas);
             } else {
                 self.views[i].deactivate(&mut self.canvas);
             }
@@ -552,6 +552,7 @@ impl View {
     fn deactivate(&mut self, canvas: &mut Canvas) -> bool {
         for i in (0 as usize)..self.objects.len() {
             if !self.objects[i].deactivate(canvas) {
+                debug!("Attempt to deactivate gui object returned false");
                 return false;
             }
         }
