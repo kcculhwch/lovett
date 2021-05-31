@@ -49,6 +49,7 @@ pub fn run_window_viewer(mut window_viewer: WindowViewer) -> JoinHandle<()>{
             let active_update = window_viewer.update_active_view();
             let view_change = window_viewer.window_viewer_updater();
             if bar_update || active_update || view_change {
+                info!("about to render {}",  window_viewer.active);
                 window_viewer.render();
             }
             thread::sleep(Duration::from_millis(5));
@@ -196,8 +197,10 @@ impl WindowViewer {
         for i in (0 as usize)..self.views.len() {
             if i == view {
                 self.active = view;
+                info!("activating {}", self.active);
                 self.views[self.active].activate(&mut self.canvas);
             } else {
+                info!("deactivating {}", i);
                 self.views[i].deactivate(&mut self.canvas);
             }
         }

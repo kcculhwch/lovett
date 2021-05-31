@@ -26,6 +26,8 @@ mod gui_config;
 pub use gui_config::*;
 
 
+use log::*;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum GuiState{
     Base,
@@ -104,7 +106,8 @@ pub trait Gui {
 
     #[allow(unused_variables)]
     fn deactivate(&mut self, canvas: &mut Canvas) -> bool {
-        true
+        debug!("Call to deactivate trait method that has not been implemented yet!");
+        false
     }
 
     #[allow(unused_variables)]
