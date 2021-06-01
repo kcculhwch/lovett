@@ -82,7 +82,7 @@ impl TextBlock {
             let x_offset = (self.w - text_width) / 2;
             text.x = self.x + x_offset;
         }
-        let text_layer: Layer<Box<dyn Draw + Send>> = Layer::new(text, true, self.regular_name.clone()); 
+        let text_layer: Layer<Box<dyn Draw + Send>> = Layer::new(text, false, self.regular_name.clone()); 
 
         self.layers.push(text_layer);
 

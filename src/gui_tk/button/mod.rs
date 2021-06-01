@@ -83,7 +83,7 @@ impl Button {
                     self.config.palette.base_background.clone()
                 )
             ), 
-            true, 
+            false, 
             self.regular_name.clone()
         );
         let outline: Layer<Box<dyn Draw + Send>> = Layer::new(
@@ -97,7 +97,7 @@ impl Button {
                     self.config.palette.base.clone()
                 )
             ), 
-            true, 
+            false, 
             self.regular_name.clone()
         );
         let mut text: Box<Text> = Box::new(
@@ -120,7 +120,7 @@ impl Button {
         }
         let text_layer: Layer<Box<dyn Draw + Send>> = Layer::new(
             text, 
-            true, 
+            false, 
             self.regular_name.clone()
         ); 
 

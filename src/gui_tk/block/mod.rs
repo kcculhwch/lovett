@@ -75,7 +75,7 @@ impl Block {
                         self.config.palette.base_background.clone()
                 )
             ), 
-            true, 
+            false, 
             self.regular_name.clone()
         );
         self.layers.push(bg);
