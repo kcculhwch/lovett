@@ -27,7 +27,6 @@ enum InputMode {
 }
 
 pub fn run_window_viewer(mut window_viewer: WindowViewer) -> JoinHandle<()>{
-    window_viewer.initialize();
     window_viewer.activate_bar();
     thread::spawn(move || {
         loop {
